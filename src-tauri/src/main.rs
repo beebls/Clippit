@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::os::windows::process::CommandExt;
 use std::process::Command;
 use std::fs;
 use directories::BaseDirs;
@@ -162,19 +163,23 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
 
   let mut audio_mux_string = String::from("");
 
-  let mut audio_input_args: Vec<String> = Vec::new();
+  // let mut audio_input_args: Vec<String> = Vec::new();
 
   let mut command: Command = Command::new("ffmpeg");
 
-  // command.arg("-ss");
-  // command.arg(start_time.to_string());
-  // command.arg("-to");
-  audio_input_args.push("-ss".to_owned());
-  audio_input_args.push(start_time.to_string());
-  audio_input_args.push("-to".to_owned());
-  audio_input_args.push(end_time.to_string());
-  audio_input_args.push("-i".to_owned());
-  audio_input_args.push(video_path.to_string_lossy().to_string());
+  command.arg("-ss");
+  command.arg(start_time.to_string());
+  command.arg("-to");
+  command.arg(end_time.to_string());
+  command.arg("-i");
+  command.arg(video_path.to_string_lossy().to_string());
+
+  // audio_input_args.push("-ss".to_owned());
+  // audio_input_args.push(start_time.to_string());
+  // audio_input_args.push("-to".to_owned());
+  // audio_input_args.push(end_time.to_string());
+  // audio_input_args.push("-i".to_owned());
+  // audio_input_args.push(video_path.to_string_lossy().to_string());
 
   let mut acc: i32 = 0;
   while acc < num_audio_files {
@@ -182,36 +187,45 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
     let file_path = temp_output_path.join(format!("track_{}.mp3", acc));
 
     let file_str = file_path.to_string_lossy().to_string();
-    let test = file_str.clone();
-    audio_input_args.push("-i".to_owned());
-    audio_input_args.push(test);
+    command.arg("-i");
+    command.arg(file_str);
+    // audio_input_args.push("-i".to_owned());
+    // audio_input_args.push(file_str);
     acc = acc + 1;
   }
   audio_mux_string.push_str(&format!("amix=inputs={}[a]", num_audio_files));
-  println!("{}", audio_mux_string);
   if new_height.is_some() {
-    audio_input_args.push("-vf".to_owned());
+    command.arg("-vf");
+    command.raw_arg(format!("scale=\"trunc(oh*a/2)*2:{}\"", new_height.unwrap()));
+    // audio_input_args.push("-vf".to_owned());
     // scale_str.push_str(":");
     // scale_str.push_str(&new_height.unwrap().to_string());
     // scale_str.push_str(r#"""#);
     // audio_input_args.push(scale_str.to_owned());
     // println!("{}",scale_str);
   }
-  audio_input_args.push("-filter_complex".to_owned());
-  audio_input_args.push(audio_mux_string);
-  audio_input_args.push("-map".to_owned());
-  audio_input_args.push("0".to_owned());
-  audio_input_args.push("-map".to_owned());
-  audio_input_args.push("[a]".to_owned());
-  audio_input_args.push(output_path);
+  command.arg("-filter_complex");
+  command.arg(audio_mux_string);
+  command.arg("-map");
+  command.arg("0");
+  command.arg("-map");
+  command.arg("[a]");
+  command.arg(output_path);
+  // audio_input_args.push("-filter_complex".to_owned());
+  // audio_input_args.push(audio_mux_string);
+  // audio_input_args.push("-map".to_owned());
+  // audio_input_args.push("0".to_owned());
+  // audio_input_args.push("-map".to_owned());
+  // audio_input_args.push("[a]".to_owned());
+  // audio_input_args.push(output_path);
 
   // let mut test = Command::new("ffmpeg");
   // test.args(audio_input_args.iter());
-  // let args = test.get_args();
-  // println!("{:?}", args);
+  let args = command.get_args();
+  println!("{:?}", args);
 
-  let mut command: Command = Command::new("ffmpeg");
-  command.args(audio_input_args.iter());
+  // let mut command: Command = Command::new("ffmpeg");
+  // command.args(audio_input_args.iter());
   let value = command.output().expect("Failed to execute process");
   let out = String::from_utf8_lossy(&value.stdout);
   let err = String::from_utf8_lossy(&value.stderr);
