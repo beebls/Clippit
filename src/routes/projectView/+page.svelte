@@ -1,13 +1,15 @@
 <script lang="ts">
 	import AudioElem from '$lib/components/AudioElem.svelte';
 
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import {
 		pause as pauseAudio,
 		play as playAudio,
-		seek as seekAudio
+		seek as seekAudio,
+		reset as resetAudio
 	} from '../../lib/audio/audioTest';
 	import { invoke } from '@tauri-apps/api';
+	import { save } from '@tauri-apps/api/dialog';
 	import { convertFileSrc } from '@tauri-apps/api/tauri';
 	import { join, appCacheDir } from '@tauri-apps/api/path';
 	import { currentProject } from '$lib/stores/currentProject';
@@ -19,6 +21,10 @@
 
 	onMount(() => {
 		startProject();
+	});
+
+	onDestroy(() => {
+		resetAudio();
 	});
 
 	async function startProject() {
@@ -83,14 +89,26 @@
 		videoRef.currentTime = time;
 		seekAudio(time);
 	}
-	$: console.log(volumes);
+
+	async function beginExport() {
+		const height = Number(prompt('Name the new height of the video (0 for original): ')) || 0;
+		const outputPath = await save({ filters: [{ name: 'Video', extensions: ['mp4'] }] });
+		invoke('export_project', {
+			projectHash: projectHash,
+			startTime: startTime,
+			endTime: endTime,
+			audioVolumes: volumes.map((e) => e / 100),
+			outputFile: outputPath,
+			newHeight: height
+		});
+	}
 </script>
 
 <div class="flex flex-col" style={`display: ${videoLoaded ? 'flex' : 'none'}`}>
 	<!-- svelte-ignore a11y-media-has-caption -->
 	<video
 		bind:this={videoRef}
-		style="width: 100%; height: 400px;"
+		style="width: 100%; height: 500px;"
 		on:loadeddata={onVideoLoad}
 		on:click={() => (playing ? pause() : play())}
 	/>
@@ -111,14 +129,5 @@
 			<AudioElem {src} {index} bind:volume={volumes[index]} />
 		{/each}
 	{/if}
-	<button
-		on:click={() => {
-			invoke('export_project', {
-				projectHash: projectHash,
-				startTime: startTime,
-				endTime: endTime,
-				audioVolumes: volumes.map((e) => e / 100)
-			});
-		}}>Test</button
-	>
+	<button on:click={beginExport}>Export</button>
 </div>

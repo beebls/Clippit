@@ -11,6 +11,6 @@
 	}
 </script>
 
-<div class="w-full h-full min-h-screen flex items-center justify-center">
+<div class="w-full h-full flex-grow flex items-center justify-center">
 	<button on:click={startProject} class="bg-zinc-800 text-4xl p-4 rounded-xl">Get File</button>
 </div>

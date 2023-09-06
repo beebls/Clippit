@@ -101,14 +101,23 @@ async fn create_temp_dir(file_name: String) -> String {
   return hash;
 }
 
+// new_height will be set to 0 if it shouldn't be scaled
 #[tauri::command]
-async fn export_project(project_hash: String, start_time: f32, end_time: f32, audio_volumes: Vec<f32>) {
+async fn export_project(project_hash: String, start_time: f32, end_time: f32, audio_volumes: Vec<f32>, output_file: String, new_height: i32) {
   create_output_dir(project_hash.to_owned()).await;
 
   for (index, element) in audio_volumes.iter().enumerate() {
     format_audio_track(index as i32, project_hash.to_owned(), element.to_owned(), start_time, end_time).await;
   }
-  make_final_video_track(project_hash, audio_volumes.len() as i32, start_time, end_time).await;
+
+  let formatted_height: Option<i32>;
+  if new_height == 0 {
+    formatted_height = None;
+  } else {
+    formatted_height = Some(new_height)
+  }
+
+  make_final_video_track(project_hash, audio_volumes.len() as i32, start_time, end_time, output_file, formatted_height).await;
 }
 
 async fn create_output_dir(project_hash: String) {
@@ -134,30 +143,32 @@ async fn format_audio_track(track_num: i32, project_hash: String, volume: f32, s
   let input_path = full_temp_path.join(&track_file_name);
   let output_path = full_temp_path.join("output").join(&track_file_name);
   let value: std::process::Output = Command::new("ffmpeg").args(["-ss", &start_time.to_string(), "-to", &end_time.to_string(), "-i", &input_path.to_string_lossy(), "-filter:a", &format!("volume={}", volume), &output_path.to_string_lossy()]).output().expect("Failed to execute process");
-  let out = String::from_utf8_lossy(&value.stdout);
-  let err = String::from_utf8_lossy(&value.stderr);
+  // let out = String::from_utf8_lossy(&value.stdout);
+  // let err = String::from_utf8_lossy(&value.stderr);
 
-  println!("{} err {}", out, err);
+  // println!("{} err {}", out, err);
 }
 
-async fn make_final_video_track(project_hash: String, num_audio_files: i32, start_time: f32, end_time: f32) {
+async fn make_final_video_track(project_hash: String, num_audio_files: i32, start_time: f32, end_time: f32, output_path: String, new_height: Option<i32>) {
   let temp_root = get_temp_root().await;
   if temp_root.is_none() {
     // return String::from("ERROR: Unable To Find Temp Dir");
     return;
   }
   let full_temp_path: PathBuf = temp_root.unwrap().join(&project_hash);
-  let output_path = full_temp_path.join("output");
+  let temp_output_path = full_temp_path.join("output");
 
   let video_path = full_temp_path.join("video.mp4");
-
-  let final_video_path = output_path.join("final.mp4");
 
   let mut audio_mux_string = String::from("");
 
   let mut audio_input_args: Vec<String> = Vec::new();
 
+  let mut command: Command = Command::new("ffmpeg");
 
+  // command.arg("-ss");
+  // command.arg(start_time.to_string());
+  // command.arg("-to");
   audio_input_args.push("-ss".to_owned());
   audio_input_args.push(start_time.to_string());
   audio_input_args.push("-to".to_owned());
@@ -168,7 +179,7 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
   let mut acc: i32 = 0;
   while acc < num_audio_files {
     audio_mux_string.push_str(&format!("[{}:a]", acc + 1));
-    let file_path = output_path.join(format!("track_{}.mp3", acc));
+    let file_path = temp_output_path.join(format!("track_{}.mp3", acc));
 
     let file_str = file_path.to_string_lossy().to_string();
     let test = file_str.clone();
@@ -178,17 +189,34 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
   }
   audio_mux_string.push_str(&format!("amix=inputs={}[a]", num_audio_files));
   println!("{}", audio_mux_string);
+  if new_height.is_some() {
+    audio_input_args.push("-vf".to_owned());
+    // scale_str.push_str(":");
+    // scale_str.push_str(&new_height.unwrap().to_string());
+    // scale_str.push_str(r#"""#);
+    // audio_input_args.push(scale_str.to_owned());
+    // println!("{}",scale_str);
+  }
   audio_input_args.push("-filter_complex".to_owned());
   audio_input_args.push(audio_mux_string);
   audio_input_args.push("-map".to_owned());
   audio_input_args.push("0".to_owned());
   audio_input_args.push("-map".to_owned());
   audio_input_args.push("[a]".to_owned());
-  audio_input_args.push(final_video_path.to_string_lossy().to_string());
+  audio_input_args.push(output_path);
 
-  let value: std::process::Output = Command::new("ffmpeg").args(audio_input_args.iter()).output().expect("Failed to execute process");
+  // let mut test = Command::new("ffmpeg");
+  // test.args(audio_input_args.iter());
+  // let args = test.get_args();
+  // println!("{:?}", args);
+
+  let mut command: Command = Command::new("ffmpeg");
+  command.args(audio_input_args.iter());
+  let value = command.output().expect("Failed to execute process");
   let out = String::from_utf8_lossy(&value.stdout);
   let err = String::from_utf8_lossy(&value.stderr);
 
   println!("{} err {}", out, err);
+  // println!("{:?}", args);
+
 }

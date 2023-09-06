@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { MouseEventHandler } from 'svelte/elements';
 
 	export let duration: number;
 
@@ -70,6 +71,8 @@
 	let middleWidth: number;
 	let middleOffset: number;
 
+	let playHeadLeftPercent: number;
+
 	onMount(() => {
 		let start = startRef?.getBoundingClientRect();
 		middleWidth = trackRef?.getBoundingClientRect().width - start.width * 2;
@@ -92,15 +95,41 @@
 		startTime = Math.round(duration * leftPercent * 100) / 100;
 		endTime = Math.round(duration * rightPercent * 100) / 100;
 
-		if (videoRef.currentTime < startTime || videoRef.currentTime > endTime) seek(startTime);
+		if (videoRef.currentTime < startTime || videoRef.currentTime > endTime) {
+			seek(startTime);
+			calculatePlayHeadLocation(true);
+		}
 
 		middleWidth = track.width * rangePercent - end.width;
 	}
+	function onTrackClick(evt: MouseEvent) {
+		const mouseX = evt.clientX;
+		const track = trackRef.getBoundingClientRect();
+		const adjustedMousePos = mouseX - track.left;
+		const mousePercent = (adjustedMousePos / track.width) * 100;
+		const timeClickedOn = Math.floor(duration * (mousePercent / 100) * 100) / 100;
+
+		playHeadLeftPercent = mousePercent;
+		seek(timeClickedOn);
+	}
+
+	function calculatePlayHeadLocation(override: boolean = false) {
+		if (!playing && !override) return;
+		const videoPercent = (videoRef.currentTime / duration) * 100;
+		console.log(videoPercent);
+		playHeadLeftPercent = videoPercent;
+		setTimeout(() => {
+			calculatePlayHeadLocation();
+		}, 10);
+	}
+	$: if (playing) calculatePlayHeadLocation();
 </script>
 
 <div bind:this={trackRef} class="bg-zinc-900 w-full h-12 relative rounded-xl">
-	<!-- test {duration} -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div
+		on:click={onTrackClick}
 		class="bg-[#192326] border-2 border-[#67c2ae] h-12 absolute top-0"
 		style={`width: ${middleWidth}px; left: calc(${startLeft}px + ${middleOffset}px)`}
 	/>
@@ -118,4 +147,5 @@
 		on:pointerdown={onEndDown}
 		on:pointerup={onEndUp}
 	/>
+	<div class="w-2 h-12 bg-white absolute top-0 z-50" style={`left: ${playHeadLeftPercent}%`} />
 </div>

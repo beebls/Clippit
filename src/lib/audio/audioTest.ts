@@ -31,3 +31,9 @@ export function pause() {
 export function seek(time: number) {
 	audioElements.forEach((e) => (e.currentTime = time));
 }
+
+export function reset() {
+	pause();
+	audioElements = [];
+	gainNodes = [];
+}
