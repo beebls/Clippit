@@ -15,6 +15,7 @@
 	import { currentProject } from '$lib/stores/currentProject';
 	import VideoTrimBar from '$lib/components/ProjectView/VideoTrimBar.svelte';
 	import PlayButton from '$lib/components/ProjectView/PlayButton.svelte';
+	import { secondsToMinuteString } from '$lib/utils/secondsToMinuteString';
 
 	let audioSrces: any[] = [];
 
@@ -75,6 +76,18 @@
 
 	const volumes: number[] = [];
 
+	let approxCurrentTime: number;
+
+	function getTimeWhilePlaying(override: boolean = false) {
+		if (!playing && !override) return;
+		approxCurrentTime = videoRef.currentTime;
+		setTimeout(() => {
+			getTimeWhilePlaying();
+		}, 100);
+	}
+
+	$: if (playing) getTimeWhilePlaying();
+
 	function onVideoLoad() {
 		videoLoaded = true;
 		duration = videoRef.duration;
@@ -95,6 +108,7 @@
 	function seek(time: number) {
 		videoRef.currentTime = time;
 		seekAudio(time);
+		getTimeWhilePlaying();
 	}
 
 	async function beginExport() {
@@ -139,7 +153,11 @@
 			<div class="h-12 flex items-center pl-4 gap-2">
 				<PlayButton {play} {pause} {playing} />
 				<PlayButton {play} {pause} {playing} />
-				<span class="ml-auto pr-4">0:12/1:00</span>
+				<span class="ml-auto pr-4"
+					>{secondsToMinuteString(approxCurrentTime)}/{secondsToMinuteString(
+						Math.round(videoRef.duration)
+					)}</span
+				>
 			</div>
 			<div class="grid grid-cols-[1fr,7fr] grid-rows-1 p-4 pt-0">
 				<div
