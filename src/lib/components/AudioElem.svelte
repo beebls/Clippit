@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { connectElement } from '$lib/audio/audioTest';
-	import { generateRandomString } from '$lib/utils/generateRandomString';
 	import { onMount } from 'svelte';
-	import { slide } from 'svelte/transition';
+	import FaVolumeUp from 'svelte-icons/fa/FaVolumeUp.svelte';
+	import FaVolumeDown from 'svelte-icons/fa/FaVolumeDown.svelte';
+	import FaVolumeMute from 'svelte-icons/fa/FaVolumeMute.svelte';
 
 	const alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
@@ -23,9 +24,11 @@
 		const gain = evt.target.value / 100;
 		gainNode.gain.setValueAtTime(gain, gainNode.context.currentTime + 0.001);
 	}
+
+	let volumeControlOpen: boolean = true;
 </script>
 
-<div class="flex bg-containers-4-light dark:bg-containers-4-dark rounded-xl flex-col h-12">
+<div class="flex bg-containers-4-light dark:bg-containers-4-dark rounded-md relative">
 	<audio
 		id={alphabet[index]}
 		bind:this={elem}
@@ -34,8 +37,33 @@
 		unselectable="on"
 		crossorigin="anonymous"
 	/>
-	<h1>Track {index + 1}</h1>
-	<div class="flex">
-		<input type="range" min="0" max="100" step="1" on:change={onSliderChange} bind:value={volume} />
-	</div>
+	<span class="ml-2">Track {index + 1}</span>
+	<span class="ml-auto">{volume}%</span>
+	<button
+		class="h-full aspect-square p-1 ml-4 bg-containers-5-light dark:bg-containers-5-dark rounded-md"
+		on:click={() => (volumeControlOpen = !volumeControlOpen)}
+	>
+		{#if volume > 50}
+			<FaVolumeUp />
+		{:else if volume > 0}
+			<FaVolumeDown />
+		{:else}
+			<FaVolumeMute />
+		{/if}
+	</button>
+	{#if volumeControlOpen}
+		<div
+			class="absolute -bottom-full -right-1/2 -translate-x-1/2 bg-containers-6-light dark:bg-containers-6-dark rounded-full h-5"
+		>
+			<input
+				class="mx-4"
+				type="range"
+				min="0"
+				max="100"
+				step="1"
+				on:change={onSliderChange}
+				bind:value={volume}
+			/>
+		</div>
+	{/if}
 </div>

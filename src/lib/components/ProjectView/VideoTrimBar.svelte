@@ -8,7 +8,7 @@
 	let startRef: HTMLDivElement;
 	let endRef: HTMLDivElement;
 
-	let startLeft: number = 0;
+	export let startLeft: number = 0;
 	let endRight: number = 0;
 
 	export let startTime: number = 0;
@@ -42,7 +42,6 @@
 	}
 	function onMoveWhenStartSelected(evt: PointerEvent) {
 		const mouseX = evt.clientX;
-		// const trackWidth = trackRef.getBoundingClientRect().width;
 		const elemBox = startRef.getBoundingClientRect();
 		const track = trackRef.getBoundingClientRect();
 
@@ -54,7 +53,6 @@
 	}
 	function onMoveWhenEndSelected(evt: PointerEvent) {
 		const mouseX = evt.clientX;
-		// const trackWidth = trackRef.getBoundingClientRect().width;
 		const elemBox = endRef.getBoundingClientRect();
 		const track = trackRef.getBoundingClientRect();
 
@@ -70,15 +68,15 @@
 		afterDragPercentCalculation();
 	}
 
-	let middleWidth: number;
-	let middleOffset: number;
+	export let trackWidth: number;
+	export let trackOffset: number;
 
 	let playHeadLeftPercent: number;
 
 	onMount(() => {
 		let start = startRef?.getBoundingClientRect();
-		middleWidth = trackRef?.getBoundingClientRect().width - start.width * 2;
-		middleOffset = start.width;
+		trackWidth = trackRef?.getBoundingClientRect().width - start.width * 2;
+		trackOffset = start.width;
 		window.addEventListener('resize', afterDragPercentCalculation);
 	});
 
@@ -103,7 +101,7 @@
 			calculatePlayHeadLocation(true);
 		}
 
-		middleWidth = track.width * rangePercent - end.width;
+		trackWidth = track.width * rangePercent - end.width;
 	}
 	function onTrackClick(evt: MouseEvent) {
 		const mouseX = evt.clientX;
@@ -141,7 +139,7 @@
 	<div
 		on:click={onTrackClick}
 		class="bg-primaryContainer-light dark:bg-primaryContainer-dark border-4 border-l-0 border-r-0 border-primary-light dark:border-primary-dark h-12 absolute top-0"
-		style={`width: ${middleWidth + 6}px; left: calc(${startLeft}px + ${middleOffset}px)`}
+		style={`width: ${trackWidth + 6}px; left: calc(${startLeft}px + ${trackOffset}px)`}
 	/>
 	<div
 		bind:this={startRef}

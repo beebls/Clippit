@@ -14,6 +14,7 @@
 	import { join, appCacheDir, basename } from '@tauri-apps/api/path';
 	import { currentProject } from '$lib/stores/currentProject';
 	import VideoTrimBar from '$lib/components/ProjectView/VideoTrimBar.svelte';
+	import PlayButton from '$lib/components/ProjectView/PlayButton.svelte';
 
 	let audioSrces: any[] = [];
 
@@ -112,6 +113,8 @@
 			encoderType: encoder === 1 ? 'x264' : 'x265'
 		});
 	}
+
+	let trackWidth: number, trackOffset: number, startLeft: number;
 </script>
 
 <div
@@ -130,39 +133,60 @@
 			/>
 		</div>
 	</div>
-	{#if videoLoaded}
-		<div
-			class="grid grid-cols-[1fr,7fr]"
-			style={`grid-template-rows: repeat(${audioSrces.length + 2}, 3rem)`}
-		>
-			<div class="bg-red-800" />
-			<div>
-				<button
-					class="bg-primaryContainer-light dark:bg-primaryContainer-dark text-primary-light dark:text-primary-dark"
-					on:click={() => (playing ? pause() : play())}>{playing ? 'Pause' : 'Play'}</button
-				>
-			</div>
-			<div
-				class="flex items-center justify-center bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
-			>
-				<span>{trimmedFileName}</span>
-			</div>
-			<VideoTrimBar
-				{duration}
-				bind:startTime
-				bind:endTime
-				{pause}
-				bind:playing
-				{seek}
-				bind:videoRef
-			/>
-			{#each audioSrces as src, index}
-				<AudioElem {src} {index} bind:volume={volumes[index]} />
-				<div class="bg-green-800 rounded-3xl" />
-			{/each}
-		</div>
 
-		<!-- <div class="flex p-4 bg-containers-2-light dark:bg-containers-2-dark gap-4">
+	{#if videoLoaded}
+		<div class="flex flex-col bg-containers-2-light dark:bg-containers-2-dark">
+			<div class="h-12 flex items-center pl-4 gap-2">
+				<PlayButton {play} {pause} {playing} />
+				<PlayButton {play} {pause} {playing} />
+				<span class="ml-auto pr-4">0:12/1:00</span>
+			</div>
+			<div class="grid grid-cols-[1fr,7fr] grid-rows-1 p-4 pt-0">
+				<div
+					class="w-full grid grid-cols-1 gap-4 p-4 pl-0"
+					style={`grid-template-rows: 3rem repeat(${audioSrces.length}, 1.5rem)`}
+				>
+					<div
+						class="flex items-center justify-center bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
+					>
+						<span>{trimmedFileName}</span>
+					</div>
+					{#each audioSrces as src, index}
+						<AudioElem {src} {index} bind:volume={volumes[index]} />
+					{/each}
+				</div>
+				<div
+					class="w-full grid grid-cols-1 gap-4 p-4 bg-containers-0-light dark:bg-containers-0-dark rounded-3xl"
+					style={`grid-template-rows:  3rem repeat(${audioSrces.length}, 1.5rem)`}
+				>
+					<VideoTrimBar
+						{duration}
+						bind:trackWidth
+						bind:trackOffset
+						bind:startTime
+						bind:startLeft
+						bind:endTime
+						{pause}
+						bind:playing
+						{seek}
+						bind:videoRef
+					/>
+					{#each audioSrces as src, index}
+						<div class="relative bg-containers-2-light dark:bg-containers-2-dark rounded-lg">
+							<div
+								class="bg-secondary-light dark:bg-secondary-dark rounded-lg absolute h-full"
+								style={`width: ${
+									trackWidth + trackOffset * 2
+								}px; left: calc(${startLeft}px); opacity: ${volumes[index] === 0 ? 0 : 1}`}
+							/>
+						</div>
+					{/each}
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- <div class="flex p-4 bg-containers-2-light dark:bg-containers-2-dark gap-4">
 			<div class="flex flex-col py-4 gap-4">
 				<div
 					class="flex items-center justify-center h-12 w-full bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
@@ -186,6 +210,5 @@
 				/>
 			</div>
 		</div> -->
-		<button on:click={beginExport}>Export</button>
-	{/if}
+	<button on:click={beginExport}>Export</button>
 </div>
