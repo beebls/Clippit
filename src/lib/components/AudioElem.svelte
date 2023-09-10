@@ -25,7 +25,7 @@
 	}
 </script>
 
-<div class="flex bg-zinc-800 p-4 flex-col">
+<div class="flex bg-containers-4-light dark:bg-containers-4-dark rounded-xl flex-col h-12">
 	<audio
 		id={alphabet[index]}
 		bind:this={elem}
@@ -37,6 +37,5 @@
 	<h1>Track {index + 1}</h1>
 	<div class="flex">
 		<input type="range" min="0" max="100" step="1" on:change={onSliderChange} bind:value={volume} />
-		<button class="w-16 h-16 rounded-xl bg-blue-800" on:click={() => {}}>Mute</button>
 	</div>
 </div>

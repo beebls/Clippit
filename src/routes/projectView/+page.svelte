@@ -11,7 +11,7 @@
 	import { invoke } from '@tauri-apps/api';
 	import { save } from '@tauri-apps/api/dialog';
 	import { convertFileSrc } from '@tauri-apps/api/tauri';
-	import { join, appCacheDir } from '@tauri-apps/api/path';
+	import { join, appCacheDir, basename } from '@tauri-apps/api/path';
 	import { currentProject } from '$lib/stores/currentProject';
 	import VideoTrimBar from '$lib/components/ProjectView/VideoTrimBar.svelte';
 
@@ -27,7 +27,13 @@
 		resetAudio();
 	});
 
+	let trimmedFileName: string;
+	async function trimFileName() {
+		trimmedFileName = await basename($currentProject.fileName);
+	}
+
 	async function startProject() {
+		trimFileName();
 		const [num_audio_tracks, projectId]: [number, string] = await invoke('start_project', {
 			fileName: $currentProject.fileName
 		});
@@ -92,6 +98,8 @@
 
 	async function beginExport() {
 		const height = Number(prompt('Name the new height of the video (0 for original): ')) || 0;
+		const fileSize = Number(prompt('Name the new file size for the video (0 for original): ')) || 0;
+		const encoder = Number(prompt('Choose the encoder (0 for x265, 1 for x264)')) || 0;
 		const outputPath = await save({ filters: [{ name: 'Video', extensions: ['mp4'] }] });
 		invoke('export_project', {
 			projectHash: projectHash,
@@ -99,35 +107,85 @@
 			endTime: endTime,
 			audioVolumes: volumes.map((e) => e / 100),
 			outputFile: outputPath,
-			newHeight: height
+			newHeight: height,
+			newMegabytes: fileSize,
+			encoderType: encoder === 1 ? 'x264' : 'x265'
 		});
 	}
 </script>
 
-<div class="flex flex-col" style={`display: ${videoLoaded ? 'flex' : 'none'}`}>
+<div
+	class="flex flex-col flex-grow overflow-hidden gap-4"
+	style={`display: ${videoLoaded ? 'flex' : 'none'}; height: calc(100vh - 2rem);`}
+>
 	<!-- svelte-ignore a11y-media-has-caption -->
-	<video
-		bind:this={videoRef}
-		style="width: 100%; height: 500px;"
-		on:loadeddata={onVideoLoad}
-		on:click={() => (playing ? pause() : play())}
-	/>
+	<div class="flex-grow p-4">
+		<div class="relative w-full h-full bg-containers-2-light dark:bg-containers-2-dark">
+			<video
+				class="absolute right-0 bottom-0 min-w-full min-h-full w-auto h-auto bg-cover overflow-hidden"
+				style="height: 100%"
+				bind:this={videoRef}
+				on:loadeddata={onVideoLoad}
+				on:click={() => (playing ? pause() : play())}
+			/>
+		</div>
+	</div>
 	{#if videoLoaded}
-		<VideoTrimBar
-			{duration}
-			bind:startTime
-			bind:endTime
-			{pause}
-			bind:playing
-			{seek}
-			bind:videoRef
-		/>
-		<button class="bg-zinc-800 h-12 w-12 rounded-full" on:click={() => (playing ? pause() : play())}
-			>{playing ? 'Pause' : 'Play'}</button
+		<div
+			class="grid grid-cols-[1fr,7fr]"
+			style={`grid-template-rows: repeat(${audioSrces.length + 2}, 3rem)`}
 		>
-		{#each audioSrces as src, index}
-			<AudioElem {src} {index} bind:volume={volumes[index]} />
-		{/each}
+			<div class="bg-red-800" />
+			<div>
+				<button
+					class="bg-primaryContainer-light dark:bg-primaryContainer-dark text-primary-light dark:text-primary-dark"
+					on:click={() => (playing ? pause() : play())}>{playing ? 'Pause' : 'Play'}</button
+				>
+			</div>
+			<div
+				class="flex items-center justify-center bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
+			>
+				<span>{trimmedFileName}</span>
+			</div>
+			<VideoTrimBar
+				{duration}
+				bind:startTime
+				bind:endTime
+				{pause}
+				bind:playing
+				{seek}
+				bind:videoRef
+			/>
+			{#each audioSrces as src, index}
+				<AudioElem {src} {index} bind:volume={volumes[index]} />
+				<div class="bg-green-800 rounded-3xl" />
+			{/each}
+		</div>
+
+		<!-- <div class="flex p-4 bg-containers-2-light dark:bg-containers-2-dark gap-4">
+			<div class="flex flex-col py-4 gap-4">
+				<div
+					class="flex items-center justify-center h-12 w-full bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
+				>
+					<span>{trimmedFileName}</span>
+				</div>
+
+				{#each audioSrces as src, index}
+					<AudioElem {src} {index} bind:volume={volumes[index]} />
+				{/each}
+			</div>
+			<div class="w-full bg-containers-0-light dark:bg-containers-0-dark p-4 rounded-xl">
+				<VideoTrimBar
+					{duration}
+					bind:startTime
+					bind:endTime
+					{pause}
+					bind:playing
+					{seek}
+					bind:videoRef
+				/>
+			</div>
+		</div> -->
+		<button on:click={beginExport}>Export</button>
 	{/if}
-	<button on:click={beginExport}>Export</button>
 </div>

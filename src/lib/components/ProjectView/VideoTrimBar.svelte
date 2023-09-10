@@ -26,6 +26,8 @@
 		window.addEventListener('pointerup', onStartUp);
 	}
 	function onStartUp() {
+		videoRef.currentTime = startTime;
+		calculatePlayHeadLocation(true);
 		window.removeEventListener('pointermove', onMoveWhenStartSelected);
 		window.removeEventListener('pointerup', onStartUp);
 	}
@@ -77,6 +79,7 @@
 		let start = startRef?.getBoundingClientRect();
 		middleWidth = trackRef?.getBoundingClientRect().width - start.width * 2;
 		middleOffset = start.width;
+		window.addEventListener('resize', afterDragPercentCalculation);
 	});
 
 	function afterDragPercentCalculation() {
@@ -116,8 +119,12 @@
 	function calculatePlayHeadLocation(override: boolean = false) {
 		if (!playing && !override) return;
 		const videoPercent = (videoRef.currentTime / duration) * 100;
-		console.log(videoPercent);
 		playHeadLeftPercent = videoPercent;
+		if (videoRef.currentTime > endTime) {
+			pause();
+			seek(startTime);
+			calculatePlayHeadLocation(true);
+		}
 		setTimeout(() => {
 			calculatePlayHeadLocation();
 		}, 10);
@@ -125,27 +132,48 @@
 	$: if (playing) calculatePlayHeadLocation();
 </script>
 
-<div bind:this={trackRef} class="bg-zinc-900 w-full h-12 relative rounded-xl">
+<div
+	bind:this={trackRef}
+	class="w-full h-12 relative rounded-xl bg-containers-6-light dark:bg-containers-6-dark"
+>
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div
 		on:click={onTrackClick}
-		class="bg-[#192326] border-2 border-[#67c2ae] h-12 absolute top-0"
-		style={`width: ${middleWidth}px; left: calc(${startLeft}px + ${middleOffset}px)`}
+		class="bg-primaryContainer-light dark:bg-primaryContainer-dark border-4 border-l-0 border-r-0 border-primary-light dark:border-primary-dark h-12 absolute top-0"
+		style={`width: ${middleWidth + 6}px; left: calc(${startLeft}px + ${middleOffset}px)`}
 	/>
 	<div
 		bind:this={startRef}
-		class="bg-[#67c2ae] w-2 h-full absolute top-0 cursor-pointer rounded-l-xl"
+		class="bg-primary-light dark:bg-primary-dark w-4 h-full absolute top-0 cursor-pointer rounded-l-xl flex items-center justify-end"
 		style={`left: ${startLeft}px`}
 		on:pointerdown={onStartDown}
 		on:pointerup={onStartUp}
-	/>
+	>
+		<div
+			class="bg-primaryContainer-dark h-10 float-right w-2 border-r-0 rounded-xl translate-x-1/2"
+		/>
+	</div>
+
 	<div
 		bind:this={endRef}
-		class="bg-[#67c2ae] w-2 h-full absolute top-0 cursor-pointer rounded-r-xl"
+		class="bg-primary-light dark:bg-primary-dark w-4 h-full absolute top-0 cursor-pointer rounded-r-xl flex items-center"
 		style={`right: ${endRight}px`}
 		on:pointerdown={onEndDown}
 		on:pointerup={onEndUp}
-	/>
-	<div class="w-2 h-12 bg-white absolute top-0 z-50" style={`left: ${playHeadLeftPercent}%`} />
+	>
+		<div
+			class="bg-primaryContainer-dark h-10 float-right w-2 border-r-0 rounded-xl -translate-x-1/2"
+		/>
+	</div>
+	<div
+		class="w-1 h-12 absolute top-0 z-50 pointer-events-none"
+		style={`left: ${playHeadLeftPercent}%`}
+	>
+		<div class="relative w-full h-full bg-secondary-light dark:bg-secondary-dark">
+			<div
+				class="absolute left-1/2 -translate-x-1/2 w-0 -top-1 z-50 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-secondary-light dark:border-t-secondary-dark"
+			/>
+		</div>
+	</div>
 </div>

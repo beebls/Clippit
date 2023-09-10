@@ -104,7 +104,7 @@ async fn create_temp_dir(file_name: String) -> String {
 
 // new_height will be set to 0 if it shouldn't be scaled
 #[tauri::command]
-async fn export_project(project_hash: String, start_time: f32, end_time: f32, audio_volumes: Vec<f32>, output_file: String, new_height: i32) {
+async fn export_project(project_hash: String, start_time: f32, end_time: f32, audio_volumes: Vec<f32>, output_file: String, new_height: i32, new_megabytes: f32, encoder_type: String) {
   create_output_dir(project_hash.to_owned()).await;
 
   for (index, element) in audio_volumes.iter().enumerate() {
@@ -115,10 +115,44 @@ async fn export_project(project_hash: String, start_time: f32, end_time: f32, au
   if new_height == 0 {
     formatted_height = None;
   } else {
-    formatted_height = Some(new_height)
+    formatted_height = Some(new_height);
   }
 
-  make_final_video_track(project_hash, audio_volumes.len() as i32, start_time, end_time, output_file, formatted_height).await;
+  let formatted_megabytes: Option<f32>;
+  if new_megabytes == 0.0 {
+    formatted_megabytes = None;
+  } else {
+    formatted_megabytes = Some(new_megabytes);
+  }
+
+  let mut formatted_encoder: String = "x264".to_owned();
+
+  let x264_values = ["h264".to_owned(), "x264".to_owned(), "libx264".to_owned()];
+  let x265_values = ["h265".to_owned(), "x265".to_owned(), "libx265".to_owned()];
+  if x265_values.contains(&encoder_type) {
+    formatted_encoder = "x265".to_owned();
+  } else if x264_values.contains(&encoder_type) {
+    formatted_encoder = "x264".to_owned();
+  }
+
+
+  if formatted_megabytes.is_some() {
+    let temp_root = get_temp_root().await;
+    if temp_root.is_none() {
+      // return String::from("ERROR: Unable To Find Temp Dir");
+      return;
+    }
+    let full_temp_path: PathBuf = temp_root.unwrap().join(&project_hash);
+    let temp_output_path = full_temp_path.join("output");
+    let downscaled_video_path = temp_output_path.join("downscaled.mp4");
+
+    merge_audios_into_video_and_downscale(project_hash.to_owned(), audio_volumes.len() as i32, start_time, end_time, downscaled_video_path.to_string_lossy().to_string(), formatted_height).await;
+
+    encode_video_to_specific_filesize(project_hash, downscaled_video_path.to_string_lossy().to_string(), output_file, formatted_megabytes.unwrap(), formatted_encoder).await;
+  } else {
+    merge_audios_into_video_and_downscale(project_hash, audio_volumes.len() as i32, start_time, end_time, output_file, formatted_height).await;
+  }
+
 }
 
 async fn create_output_dir(project_hash: String) {
@@ -143,14 +177,14 @@ async fn format_audio_track(track_num: i32, project_hash: String, volume: f32, s
   let full_temp_path: PathBuf = temp_root.unwrap().join(&project_hash);
   let input_path = full_temp_path.join(&track_file_name);
   let output_path = full_temp_path.join("output").join(&track_file_name);
-  let value: std::process::Output = Command::new("ffmpeg").args(["-ss", &start_time.to_string(), "-to", &end_time.to_string(), "-i", &input_path.to_string_lossy(), "-filter:a", &format!("volume={}", volume), &output_path.to_string_lossy()]).output().expect("Failed to execute process");
+  let _: std::process::Output = Command::new("ffmpeg").args(["-ss", &start_time.to_string(), "-to", &end_time.to_string(), "-i", &input_path.to_string_lossy(), "-filter:a", &format!("volume={}", volume), &output_path.to_string_lossy()]).output().expect("Failed to execute process");
   // let out = String::from_utf8_lossy(&value.stdout);
   // let err = String::from_utf8_lossy(&value.stderr);
 
   // println!("{} err {}", out, err);
 }
 
-async fn make_final_video_track(project_hash: String, num_audio_files: i32, start_time: f32, end_time: f32, output_path: String, new_height: Option<i32>) {
+async fn merge_audios_into_video_and_downscale(project_hash: String, num_audio_files: i32, start_time: f32, end_time: f32, output_path: String, new_height: Option<i32>) {
   let temp_root = get_temp_root().await;
   if temp_root.is_none() {
     // return String::from("ERROR: Unable To Find Temp Dir");
@@ -163,8 +197,6 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
 
   let mut audio_mux_string = String::from("");
 
-  // let mut audio_input_args: Vec<String> = Vec::new();
-
   let mut command: Command = Command::new("ffmpeg");
 
   command.arg("-ss");
@@ -174,13 +206,6 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
   command.arg("-i");
   command.arg(video_path.to_string_lossy().to_string());
 
-  // audio_input_args.push("-ss".to_owned());
-  // audio_input_args.push(start_time.to_string());
-  // audio_input_args.push("-to".to_owned());
-  // audio_input_args.push(end_time.to_string());
-  // audio_input_args.push("-i".to_owned());
-  // audio_input_args.push(video_path.to_string_lossy().to_string());
-
   let mut acc: i32 = 0;
   while acc < num_audio_files {
     audio_mux_string.push_str(&format!("[{}:a]", acc + 1));
@@ -189,20 +214,12 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
     let file_str = file_path.to_string_lossy().to_string();
     command.arg("-i");
     command.arg(file_str);
-    // audio_input_args.push("-i".to_owned());
-    // audio_input_args.push(file_str);
     acc = acc + 1;
   }
   audio_mux_string.push_str(&format!("amix=inputs={}[a]", num_audio_files));
   if new_height.is_some() {
     command.arg("-vf");
     command.raw_arg(format!("scale=\"trunc(oh*a/2)*2:{}\"", new_height.unwrap()));
-    // audio_input_args.push("-vf".to_owned());
-    // scale_str.push_str(":");
-    // scale_str.push_str(&new_height.unwrap().to_string());
-    // scale_str.push_str(r#"""#);
-    // audio_input_args.push(scale_str.to_owned());
-    // println!("{}",scale_str);
   }
   command.arg("-filter_complex");
   command.arg(audio_mux_string);
@@ -211,26 +228,121 @@ async fn make_final_video_track(project_hash: String, num_audio_files: i32, star
   command.arg("-map");
   command.arg("[a]");
   command.arg(output_path);
-  // audio_input_args.push("-filter_complex".to_owned());
-  // audio_input_args.push(audio_mux_string);
-  // audio_input_args.push("-map".to_owned());
-  // audio_input_args.push("0".to_owned());
-  // audio_input_args.push("-map".to_owned());
-  // audio_input_args.push("[a]".to_owned());
-  // audio_input_args.push(output_path);
 
-  // let mut test = Command::new("ffmpeg");
-  // test.args(audio_input_args.iter());
-  let args = command.get_args();
-  println!("{:?}", args);
-
-  // let mut command: Command = Command::new("ffmpeg");
-  // command.args(audio_input_args.iter());
   let value = command.output().expect("Failed to execute process");
   let out = String::from_utf8_lossy(&value.stdout);
   let err = String::from_utf8_lossy(&value.stderr);
 
   println!("{} err {}", out, err);
-  // println!("{:?}", args);
+}
 
+async fn encode_video_to_specific_filesize(project_hash: String, input_file: String, output_file: String, target_mebibytes: f32, encoder_type: String) {
+  let temp_root = get_temp_root().await;
+  if temp_root.is_none() {
+    // return String::from("ERROR: Unable To Find Temp Dir");
+    return;
+  }
+  let full_temp_path: PathBuf = temp_root.unwrap().join(&project_hash);
+  let temp_output_path = full_temp_path.join("output");
+
+  let duration_cmd: std::process::Output = Command::new("ffprobe").args(["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", &input_file]).output().expect("Failed to execute process");
+  let duration_str: String = String::from_utf8_lossy(&duration_cmd.stdout).to_string();
+  let duration: f32 = duration_str.trim().parse::<f32>().unwrap();
+  // let err: std::borrow::Cow<'_, str> = String::from_utf8_lossy(&value.stderr);
+  // let num_lines: i32 = out.split("\n").collect::<Vec<&str>>().len() as i32 - 1;
+  println!("Duration {}", duration);
+
+  let audio_rate_cmd: std::process::Output = Command::new("ffprobe").args(["-v", "error", "-select_streams", "a:0", "-show_entries", "stream=bit_rate", "-of", "csv=p=0", &input_file]).output().expect("Failed to execute process");
+  let audio_rate_str: String = String::from_utf8_lossy(&audio_rate_cmd.stdout).to_string();
+  // This command prints out bits PER SECOND
+  // we need to convert this to MEBIBITS per second
+  let audio_rate_mebibits: f32 = audio_rate_str.trim().parse::<f32>().unwrap() / 1048576.0;
+
+  if target_mebibytes < audio_rate_mebibits / 8.0 * duration {
+    // ERROR: IDK
+    println!("test {} {}", audio_rate_mebibits, audio_rate_mebibits / 8.0 * duration);
+    return;
+  }
+
+  // this is to ensure you dont go above the original;
+  const EXTRA_PADDING_MEBIBYTES: f32 = 1.0;
+
+  let video_rate_mebibytes = (target_mebibytes - EXTRA_PADDING_MEBIBYTES - (audio_rate_mebibits / 8.0 * duration)) / duration;
+
+  let mut pass_one = Command::new("ffmpeg");
+  pass_one.current_dir(&temp_output_path);
+  pass_one.arg("-y");
+  pass_one.arg("-i");
+  pass_one.arg(&input_file);
+  pass_one.arg("-c:v");
+  if encoder_type == "x265" {
+    pass_one.arg("libx265");
+  } else if encoder_type == "av1" {
+    pass_one.arg("libaom-av1");
+  } else {
+    pass_one.arg("libx264");
+  }
+  pass_one.arg("-b:v");
+  pass_one.arg(format!("{}k", video_rate_mebibytes * 8192.0));
+  if encoder_type == "x265" {
+    pass_one.arg("-x265-params");
+    pass_one.arg("pass=1");
+  } else if encoder_type == "av1" {
+    // 
+  } else {
+    pass_one.arg("-pass");
+    pass_one.arg("1");
+  }
+  pass_one.arg("-an");
+  pass_one.arg("-f");
+  pass_one.arg("mp4");
+  if cfg!(windows) {
+    pass_one.arg("NUL");
+  } else if cfg!(unix) {
+    pass_one.arg("/dev/null");
+  }
+  let pass_one_output = pass_one.output().expect("Failed to execute the command");
+
+  let out = String::from_utf8_lossy(&pass_one_output.stdout);
+  let err = String::from_utf8_lossy(&pass_one_output.stderr);
+
+  println!("{} {}", out, err);
+  println!("PASS ONE DONE");
+
+  let mut pass_two = Command::new("ffmpeg");
+  pass_two.current_dir(temp_output_path);
+  pass_two.arg("-i");
+  pass_two.arg(input_file);
+  pass_two.arg("-c:v");
+  if encoder_type == "x265" {
+    pass_two.arg("libx265");
+  } else if encoder_type == "av1" {
+    pass_two.arg("libaom-av1");
+  } else {
+    pass_two.arg("libx264");
+  }
+  pass_two.arg("-b:v");
+  pass_two.arg(format!("{}k", video_rate_mebibytes * 8192.0));
+  if encoder_type == "x265" {
+    pass_two.arg("-x265-params");
+    pass_two.arg("pass=2");
+  } else if encoder_type == "av1" {
+    // 
+  } else {
+    pass_two.arg("-pass");
+    pass_two.arg("2");
+  }
+  pass_two.arg("-c:a");
+  pass_two.arg("aac");
+  pass_two.arg("-b:a");
+  pass_two.arg(format!("{}k", audio_rate_mebibits * 1024.0));
+  pass_two.arg(output_file);
+
+  let pass_two_output = pass_two.output().expect("Failed to execute the command");
+
+  let out = String::from_utf8_lossy(&pass_two_output.stdout);
+  let err = String::from_utf8_lossy(&pass_two_output.stderr);
+
+  println!("{} {}", out, err);
+  println!("PASS TWO DONE");
 }

@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
 	import '../app.css';
+	import { generateMaterialPalette } from '$lib/utils/generateMaterialPalette';
+	onMount(() => {
+		generateMaterialPalette(localStorage.getItem('materialYouBaseColor') ?? '#028090');
+	});
 </script>
 
 <div
-	class="bg-zinc-300 dark:bg-zinc-700 text-black dark:text-white min-h-screen w-screen max-w-screen flex flex-col overflow-hidden"
+	class="bg-containers-0-light dark:bg-containers-0-dark text-black dark:text-white min-h-screen w-full flex flex-col overflow-hidden"
 >
 	<nav class="h-8">
 		<button on:click={() => goto('/')}>go back</button>

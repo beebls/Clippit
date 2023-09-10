@@ -28,6 +28,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@material/material-color-utilities": "^0.2.7",
 		"@tauri-apps/api": "^1.4.0",
 		"autoprefixer": "^10.4.15",
 		"postcss": "^8.4.28",

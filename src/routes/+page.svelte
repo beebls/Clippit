@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { currentProject } from '$lib/stores/currentProject';
+	import { generateMaterialPalette } from '$lib/utils/generateMaterialPalette';
 	import { open } from '@tauri-apps/api/dialog';
 	async function startProject() {
 		const selected: string = (await open({
@@ -13,4 +14,10 @@
 
 <div class="w-full h-full flex-grow flex items-center justify-center">
 	<button on:click={startProject} class="bg-zinc-800 text-4xl p-4 rounded-xl">Get File</button>
+	<input
+		type="color"
+		on:change={(evt) => {
+			generateMaterialPalette(evt.target.value);
+		}}
+	/>
 </div>
