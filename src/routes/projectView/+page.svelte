@@ -16,6 +16,7 @@
 	import VideoTrimBar from '$lib/components/ProjectView/VideoTrimBar.svelte';
 	import PlayButton from '$lib/components/ProjectView/PlayButton.svelte';
 	import { secondsToMinuteString } from '$lib/utils/secondsToMinuteString';
+	import { errors } from '$lib/stores/errorStore';
 
 	let audioSrces: any[] = [];
 
@@ -36,32 +37,37 @@
 
 	async function startProject() {
 		trimFileName();
-		const [num_audio_tracks, projectId]: [number, string] = await invoke('start_project', {
-			fileName: $currentProject.fileName
-		});
-		projectHash = projectId;
-		const cacheRoot = await appCacheDir();
-		const tempRoot = await join(cacheRoot, 'temp');
-		const projectRoot = await join(tempRoot, projectId);
-		const vidFile = await join(projectRoot, 'video.mp4');
-		const audioFiles = Array(num_audio_tracks)
-			.fill('')
-			.map((e, i) => `track_${i}.mp3`);
+		try {
+			const [num_audio_tracks, projectId]: [number, string] = await invoke('start_project', {
+				fileName: $currentProject.fileName
+			});
+			projectHash = projectId;
+			const cacheRoot = await appCacheDir();
+			const tempRoot = await join(cacheRoot, 'temp');
+			const projectRoot = await join(tempRoot, projectId);
+			const vidFile = await join(projectRoot, 'video.mp4');
+			const audioFiles = Array(num_audio_tracks)
+				.fill('')
+				.map((e, i) => `track_${i}.mp3`);
 
-		audioFiles.forEach(async (e, i) => {
-			const filePath = await join(projectRoot, e);
-			const assetUrl = convertFileSrc(filePath);
-			volumes[i] = 100;
-			audioSrces = [...audioSrces, assetUrl];
-		});
+			audioFiles.forEach(async (e, i) => {
+				const filePath = await join(projectRoot, e);
+				const assetUrl = convertFileSrc(filePath);
+				volumes[i] = 100;
+				audioSrces = [...audioSrces, assetUrl];
+			});
 
-		const assetUrl = convertFileSrc(vidFile);
+			const assetUrl = convertFileSrc(vidFile);
 
-		videoSrc = document.createElement('source');
-		videoSrc.type = 'video/mp4';
-		videoSrc.src = assetUrl;
-		videoRef.appendChild(videoSrc);
-		videoRef.load();
+			videoSrc = document.createElement('source');
+			videoSrc.type = 'video/mp4';
+			videoSrc.src = assetUrl;
+			videoRef.appendChild(videoSrc);
+			videoRef.load();
+		} catch (err: any) {
+			console.error('ERROR', err);
+			$errors = [err, ...$errors];
+		}
 	}
 
 	let videoRef: HTMLVideoElement;
@@ -150,6 +156,7 @@
 
 	{#if videoLoaded}
 		<div class="flex flex-col bg-containers-2-light dark:bg-containers-2-dark">
+			<!-- Info/play buttons -->
 			<div class="h-12 flex items-center pl-4 gap-2">
 				<PlayButton {play} {pause} {playing} />
 				<PlayButton {play} {pause} {playing} />
