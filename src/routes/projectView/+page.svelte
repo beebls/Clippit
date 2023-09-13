@@ -17,6 +17,7 @@
 	import PlayButton from '$lib/components/ProjectView/PlayButton.svelte';
 	import { secondsToMinuteString } from '$lib/utils/secondsToMinuteString';
 	import { errors } from '$lib/stores/errorStore';
+	import ExportSettings from '$lib/components/ProjectView/ExportSettings.svelte';
 
 	let audioSrces: any[] = [];
 
@@ -137,103 +138,86 @@
 	let trackWidth: number, trackOffset: number, startLeft: number;
 </script>
 
-<div
-	class="flex flex-col flex-grow overflow-hidden gap-4"
-	style={`display: ${videoLoaded ? 'flex' : 'none'}; height: calc(100vh - 2rem);`}
->
-	<!-- svelte-ignore a11y-media-has-caption -->
-	<div class="flex-grow p-4">
-		<div class="relative w-full h-full bg-containers-2-light dark:bg-containers-2-dark">
-			<video
-				class="absolute right-0 bottom-0 min-w-full min-h-full w-auto h-auto bg-cover overflow-hidden"
-				style="height: 100%"
-				bind:this={videoRef}
-				on:loadeddata={onVideoLoad}
-				on:click={() => (playing ? pause() : play())}
-			/>
-		</div>
-	</div>
-
-	{#if videoLoaded}
-		<div class="flex flex-col bg-containers-2-light dark:bg-containers-2-dark">
-			<!-- Info/play buttons -->
-			<div class="h-12 flex items-center pl-4 gap-2">
-				<PlayButton {play} {pause} {playing} />
-				<PlayButton {play} {pause} {playing} />
-				<span class="ml-auto pr-4"
-					>{secondsToMinuteString(approxCurrentTime)}/{secondsToMinuteString(
-						Math.round(videoRef.duration)
-					)}</span
-				>
-			</div>
-			<div class="grid grid-cols-[1fr,7fr] grid-rows-1 p-4 pt-0">
-				<div
-					class="w-full grid grid-cols-1 gap-4 p-4 pl-0"
-					style={`grid-template-rows: 3rem repeat(${audioSrces.length}, 1.5rem)`}
-				>
-					<div
-						class="flex items-center justify-center bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
-					>
-						<span>{trimmedFileName}</span>
-					</div>
-					{#each audioSrces as src, index}
-						<AudioElem {src} {index} bind:volume={volumes[index]} />
-					{/each}
-				</div>
-				<div
-					class="w-full grid grid-cols-1 gap-4 p-4 bg-containers-0-light dark:bg-containers-0-dark rounded-3xl"
-					style={`grid-template-rows:  3rem repeat(${audioSrces.length}, 1.5rem)`}
-				>
-					<VideoTrimBar
-						{duration}
-						bind:trackWidth
-						bind:trackOffset
-						bind:startTime
-						bind:startLeft
-						bind:endTime
-						{pause}
-						bind:playing
-						{seek}
-						bind:videoRef
-					/>
-					{#each audioSrces as src, index}
-						<div class="relative bg-containers-2-light dark:bg-containers-2-dark rounded-lg">
-							<div
-								class="bg-secondary-light dark:bg-secondary-dark rounded-lg absolute h-full"
-								style={`width: ${
-									trackWidth + trackOffset * 2
-								}px; left: calc(${startLeft}px); opacity: ${volumes[index] === 0 ? 0 : 1}`}
-							/>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</div>
-	{/if}
-
-	<!-- <div class="flex p-4 bg-containers-2-light dark:bg-containers-2-dark gap-4">
-			<div class="flex flex-col py-4 gap-4">
-				<div
-					class="flex items-center justify-center h-12 w-full bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
-				>
-					<span>{trimmedFileName}</span>
-				</div>
-
-				{#each audioSrces as src, index}
-					<AudioElem {src} {index} bind:volume={volumes[index]} />
-				{/each}
-			</div>
-			<div class="w-full bg-containers-0-light dark:bg-containers-0-dark p-4 rounded-xl">
-				<VideoTrimBar
-					{duration}
-					bind:startTime
-					bind:endTime
-					{pause}
-					bind:playing
-					{seek}
-					bind:videoRef
+<div class="flex-grow flex">
+	<div
+		class="flex flex-col w-full gap-4"
+		style={`display: ${videoLoaded ? 'flex' : 'none'}; height: calc(100vh - 2rem);`}
+	>
+		<!-- svelte-ignore a11y-media-has-caption -->
+		<div class="flex-grow p-4">
+			<div class="relative w-full h-full bg-containers-2-light dark:bg-containers-2-dark">
+				<video
+					class="absolute right-0 bottom-0 min-w-full min-h-full w-auto h-auto bg-cover overflow-hidden"
+					style="height: 100%"
+					bind:this={videoRef}
+					on:loadeddata={onVideoLoad}
+					on:click={() => (playing ? pause() : play())}
 				/>
 			</div>
-		</div> -->
-	<button on:click={beginExport}>Export</button>
+		</div>
+
+		{#if videoLoaded}
+			<div class="flex flex-col bg-containers-2-light dark:bg-containers-2-dark">
+				<!-- Info/play buttons -->
+				<div class="h-12 flex items-center pl-4 gap-2">
+					<PlayButton {play} {pause} {playing} />
+					<PlayButton {play} {pause} {playing} />
+					<span class="ml-auto pr-4"
+						>{secondsToMinuteString(approxCurrentTime)}/{secondsToMinuteString(
+							Math.round(videoRef.duration)
+						)}</span
+					>
+				</div>
+				<div class="flex flex-row grid-rows-1 p-4 pt-0">
+					<div
+						class="grid grid-cols-1 gap-4 p-4 pl-0 min-w-[12rem]"
+						style={`grid-template-rows: 3rem repeat(${audioSrces.length}, 1.5rem)`}
+					>
+						<div
+							class="flex items-center justify-center bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
+						>
+							<span class="overflow-ellipsis whitespace-nowrap overflow-hidden max-w-[12rem]"
+								>{trimmedFileName}</span
+							>
+						</div>
+						{#each audioSrces as src, index}
+							<AudioElem {src} {index} bind:volume={volumes[index]} />
+						{/each}
+					</div>
+					<div
+						class="w-full flex-1 grid grid-cols-1 gap-4 p-4 bg-containers-0-light dark:bg-containers-0-dark rounded-3xl"
+						style={`grid-template-rows:  3rem repeat(${audioSrces.length}, 1.5rem)`}
+					>
+						<VideoTrimBar
+							{duration}
+							bind:trackWidth
+							bind:trackOffset
+							bind:startTime
+							bind:startLeft
+							bind:endTime
+							{pause}
+							bind:playing
+							{seek}
+							bind:videoRef
+						/>
+						{#each audioSrces as src, index}
+							<div class="relative bg-containers-2-light dark:bg-containers-2-dark rounded-lg">
+								<div
+									class="bg-secondary-light dark:bg-secondary-dark rounded-lg absolute h-full"
+									style={`width: ${
+										trackWidth + trackOffset * 2
+									}px; left: calc(${startLeft}px); opacity: ${volumes[index] === 0 ? 0 : 1}`}
+								/>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		<button on:click={beginExport}>Export</button>
+	</div>
+	<div>
+		<ExportSettings bind:videoRef />
+	</div>
 </div>

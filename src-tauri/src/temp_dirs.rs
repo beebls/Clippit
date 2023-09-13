@@ -8,7 +8,7 @@ use std::fs;
 pub async fn get_temp_root() -> Option<PathBuf> {
   if let Some(base_dirs) = BaseDirs::new() {
     let cache_root: &Path = base_dirs.cache_dir();
-    let temp_root: PathBuf = cache_root.join("com.tauri.dev").join("temp");
+    let temp_root: PathBuf = cache_root.join("com.beebles.clippit").join("temp");
     if !temp_root.exists() {
       println!("Temp Dir does not exist, creating");
       fs::create_dir_all(&temp_root).expect("Failed to create dir");

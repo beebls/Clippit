@@ -44,7 +44,7 @@
 				"icons/icon.icns",
 				"icons/icon.ico"
 			],
-			"identifier": "com.tauri.dev",
+			"identifier": "com.beebles.clippit",
 			"longDescription": "",
 			"macOS": {
 				"entitlements": null,
@@ -73,8 +73,10 @@
 				"fullscreen": false,
 				"height": 600,
 				"resizable": true,
-				"title": "Steebles Serieebles Moments",
-				"width": 800
+				"title": "Clippit",
+				"width": 800,
+				"minWidth": 800,
+				"minHeight": 600
 			}
 		]
 	}

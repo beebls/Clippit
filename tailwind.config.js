@@ -30,13 +30,29 @@ export default {
 						dark: 'var(--m3-primary-40)'
 					}
 				},
+				secondaryContainer: {
+					light: 'var(--m3-secondary-90)',
+					dark: 'var(--m3-secondary-30)',
+					hover: {
+						light: 'var(--m3-secondary-80)',
+						dark: 'var(--m3-secondary-40)'
+					}
+				},
+				outline: {
+					light: 'var(--m3-neutralVariant-50)',
+					dark: 'var(--m3-neutralVariant-60)'
+				},
 				onPrimaryContainer: {
 					light: 'var(--m3-primary-10)',
-					dark: 'var(--m3-neutral-97)'
+					dark: 'var(--m3-primary-90)'
+				},
+				onSecondaryContainer: {
+					light: 'var(--m3-secondary-10)',
+					dark: 'var(--m3-secondary-90)'
 				},
 				containers: {
 					0: {
-						light: 'var(--m3-neutral-97)',
+						light: 'var(--m3-neutral-98)',
 						dark: 'var(--m3-neutral-6)'
 					},
 					1: {
@@ -52,16 +68,16 @@ export default {
 						dark: 'var(--m3-neutral-12)'
 					},
 					4: {
-						light: 'var(--m3-neutral-91)',
+						light: 'var(--m3-neutral-92',
 						dark: 'var(--m3-neutral-16)'
 					},
 					5: {
-						light: 'var(--m3-neutral-89)',
-						dark: 'var(--m3-neutral-21)'
+						light: 'var(--m3-neutral-90)',
+						dark: 'var(--m3-neutral-20)'
 					},
 					6: {
 						light: 'var(--m3-neutral-86)',
-						dark: 'var(--m3-neutral-27)'
+						dark: 'var(--m3-neutral-28)'
 					}
 				}
 			}

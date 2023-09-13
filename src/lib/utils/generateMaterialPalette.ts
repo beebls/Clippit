@@ -20,7 +20,7 @@ export function generateMaterialPalette(color: string) {
 		const initValue = theme.palettes[e];
 		let palette2: { color: string; tone: number }[] = [];
 		let palette: string[] = [];
-		for (let i = 0; i < 101; i = i + 1) {
+		for (let i = 0; i < 101; i = i + 2) {
 			const color = TonalPalette.fromHct(initValue).tone(i).toString(16).slice(2);
 			palette2.push({ tone: i, color: '#' + color });
 			palette[i] = '#' + color;

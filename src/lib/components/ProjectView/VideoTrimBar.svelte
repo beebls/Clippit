@@ -26,7 +26,7 @@
 		window.addEventListener('pointerup', onStartUp);
 	}
 	function onStartUp() {
-		videoRef.currentTime = startTime;
+		seek(startTime);
 		calculatePlayHeadLocation(true);
 		window.removeEventListener('pointermove', onMoveWhenStartSelected);
 		window.removeEventListener('pointerup', onStartUp);
@@ -74,9 +74,13 @@
 	let playHeadLeftPercent: number;
 
 	onMount(() => {
-		let start = startRef?.getBoundingClientRect();
-		trackWidth = trackRef?.getBoundingClientRect().width - start.width * 2;
-		trackOffset = start.width;
+		// Fixes weird issues with track width being wrong at start.
+		setTimeout(() => {
+			let start = startRef?.getBoundingClientRect();
+			trackWidth = trackRef?.getBoundingClientRect().width - start.width * 2;
+			console.log(trackWidth, trackRef?.getBoundingClientRect());
+			trackOffset = start.width;
+		}, 10);
 		window.addEventListener('resize', afterDragPercentCalculation);
 	});
 

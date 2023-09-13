@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { connectElement } from '$lib/audio/audioTest';
 	import { onMount } from 'svelte';
+	// @ts-ignore
 	import FaVolumeUp from 'svelte-icons/fa/FaVolumeUp.svelte';
+	// @ts-ignore
 	import FaVolumeDown from 'svelte-icons/fa/FaVolumeDown.svelte';
+	// @ts-ignore
 	import FaVolumeMute from 'svelte-icons/fa/FaVolumeMute.svelte';
 
 	const alphabet = 'abcdefghijklmnopqrstuvwxyz';
@@ -25,7 +28,7 @@
 		gainNode.gain.setValueAtTime(gain, gainNode.context.currentTime + 0.001);
 	}
 
-	let volumeControlOpen: boolean = true;
+	let volumeControlOpen: boolean = false;
 </script>
 
 <div class="flex bg-containers-4-light dark:bg-containers-4-dark rounded-md relative">
@@ -53,7 +56,7 @@
 	</button>
 	{#if volumeControlOpen}
 		<div
-			class="absolute -bottom-full -right-1/2 -translate-x-1/2 bg-containers-6-light dark:bg-containers-6-dark rounded-full h-5"
+			class="absolute -bottom-full left-full -translate-x-1/2 bg-containers-6-light dark:bg-containers-6-dark rounded-full h-5"
 		>
 			<input
 				class="mx-4"
