@@ -107,13 +107,13 @@
 		"windows": [
 			{
 				"fullscreen": false,
-				"height": 600,
+				"height": 768,
 				"resizable": true,
 				"title": "Clippit",
 				"decorations": false,
-				"width": 800,
+				"width": 1366,
 				"transparent": true,
-				"minWidth": 800,
+				"minWidth": 1000,
 				"minHeight": 600
 			}
 		]
