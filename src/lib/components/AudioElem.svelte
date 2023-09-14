@@ -56,7 +56,7 @@
 	</button>
 	{#if volumeControlOpen}
 		<div
-			class="absolute -bottom-full left-full -translate-x-1/2 bg-containers-6-light dark:bg-containers-6-dark rounded-full h-5"
+			class="absolute z-[1000] -bottom-full left-full -translate-x-1/2 bg-containers-6-light dark:bg-containers-6-dark rounded-full h-5"
 		>
 			<input
 				class="mx-4"

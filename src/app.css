@@ -3,14 +3,25 @@
 @tailwind utilities;
 
 @font-face {
-	font-family: 'Akira Expanded';
-	src: url('/akira-expanded.otf');
+	font-family: 'Montserrat';
+	src: url('/Montserrat-Regular.ttf');
+}
+
+@font-face {
+	font-family: 'Banigar';
+	src: url('/Banigar.otf');
+}
+
+* {
+	font-family: 'Montserrat', sans-serif;
 }
 
 * {
 	user-select: none;
 }
 
-.font-fancy {
-	font-family: 'Akira Expanded', sans-serif;
+.titlebar-logo-text {
+	letter-spacing: 0.05em;
+	font-family: 'Banigar';
+	color: white;
 }

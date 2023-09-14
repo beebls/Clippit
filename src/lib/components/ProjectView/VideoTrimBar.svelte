@@ -1,8 +1,7 @@
 <script lang="ts">
+	import { currentProject } from '$lib/stores/currentProject';
 	import { onMount } from 'svelte';
 	import type { MouseEventHandler } from 'svelte/elements';
-
-	export let duration: number;
 
 	let trackRef: HTMLDivElement;
 	let startRef: HTMLDivElement;
@@ -10,9 +9,6 @@
 
 	export let startLeft: number = 0;
 	let endRight: number = 0;
-
-	export let startTime: number = 0;
-	export let endTime: number = duration;
 
 	export let playing: boolean;
 	export let pause: () => void;
@@ -26,7 +22,7 @@
 		window.addEventListener('pointerup', onStartUp);
 	}
 	function onStartUp() {
-		seek(startTime);
+		seek($currentProject.startTime);
 		calculatePlayHeadLocation(true);
 		window.removeEventListener('pointermove', onMoveWhenStartSelected);
 		window.removeEventListener('pointerup', onStartUp);
@@ -97,11 +93,14 @@
 		const rangePercent = rightPercent - leftPercent;
 
 		// This rounds down, to ensure you dont go OVER the original video duration;
-		startTime = Math.round(duration * leftPercent * 100) / 100;
-		endTime = Math.round(duration * rightPercent * 100) / 100;
+		$currentProject.startTime = Math.round($currentProject.duration * leftPercent * 100) / 100;
+		$currentProject.endTime = Math.round($currentProject.duration * rightPercent * 100) / 100;
 
-		if (videoRef.currentTime < startTime || videoRef.currentTime > endTime) {
-			seek(startTime);
+		if (
+			videoRef.currentTime < $currentProject.startTime ||
+			videoRef.currentTime > $currentProject.endTime
+		) {
+			seek($currentProject.startTime);
 			calculatePlayHeadLocation(true);
 		}
 
@@ -112,7 +111,7 @@
 		const track = trackRef.getBoundingClientRect();
 		const adjustedMousePos = mouseX - track.left;
 		const mousePercent = (adjustedMousePos / track.width) * 100;
-		const timeClickedOn = Math.floor(duration * (mousePercent / 100) * 100) / 100;
+		const timeClickedOn = Math.floor($currentProject.duration * (mousePercent / 100) * 100) / 100;
 
 		playHeadLeftPercent = mousePercent;
 		seek(timeClickedOn);
@@ -120,11 +119,11 @@
 
 	function calculatePlayHeadLocation(override: boolean = false) {
 		if (!playing && !override) return;
-		const videoPercent = (videoRef.currentTime / duration) * 100;
+		const videoPercent = (videoRef.currentTime / $currentProject.duration) * 100;
 		playHeadLeftPercent = videoPercent;
-		if (videoRef.currentTime > endTime) {
+		if (videoRef.currentTime > $currentProject.endTime) {
 			pause();
-			seek(startTime);
+			seek($currentProject.startTime);
 			calculatePlayHeadLocation(true);
 		}
 		setTimeout(() => {

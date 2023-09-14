@@ -9,7 +9,6 @@
 		reset as resetAudio
 	} from '../../lib/audio/audioTest';
 	import { invoke } from '@tauri-apps/api';
-	import { save } from '@tauri-apps/api/dialog';
 	import { convertFileSrc } from '@tauri-apps/api/tauri';
 	import { join, appCacheDir, basename } from '@tauri-apps/api/path';
 	import { currentProject } from '$lib/stores/currentProject';
@@ -20,8 +19,6 @@
 	import ExportSettings from '$lib/components/ProjectView/ExportSettings.svelte';
 
 	let audioSrces: any[] = [];
-
-	let projectHash: string;
 
 	onMount(() => {
 		startProject();
@@ -42,7 +39,7 @@
 			const [num_audio_tracks, projectId]: [number, string] = await invoke('start_project', {
 				fileName: $currentProject.fileName
 			});
-			projectHash = projectId;
+			$currentProject.projectHash = projectId;
 			const cacheRoot = await appCacheDir();
 			const tempRoot = await join(cacheRoot, 'temp');
 			const projectRoot = await join(tempRoot, projectId);
@@ -51,10 +48,10 @@
 				.fill('')
 				.map((e, i) => `track_${i}.mp3`);
 
+			$currentProject.volumes = Array(audioFiles.length).fill(100);
 			audioFiles.forEach(async (e, i) => {
 				const filePath = await join(projectRoot, e);
 				const assetUrl = convertFileSrc(filePath);
-				volumes[i] = 100;
 				audioSrces = [...audioSrces, assetUrl];
 			});
 
@@ -71,17 +68,13 @@
 		}
 	}
 
+	$: console.log($currentProject);
+
 	let videoRef: HTMLVideoElement;
 	let videoLoaded: boolean = false;
 	let videoSrc: HTMLSourceElement;
 
 	let playing: boolean = false;
-
-	let duration: number = 0;
-
-	let startTime: number, endTime: number;
-
-	const volumes: number[] = [];
 
 	let approxCurrentTime: number;
 
@@ -97,7 +90,9 @@
 
 	function onVideoLoad() {
 		videoLoaded = true;
-		duration = videoRef.duration;
+		$currentProject.startTime = 0;
+		$currentProject.endTime = videoRef.duration;
+		$currentProject.duration = videoRef.duration;
 	}
 
 	function play() {
@@ -118,23 +113,6 @@
 		getTimeWhilePlaying();
 	}
 
-	async function beginExport() {
-		const height = Number(prompt('Name the new height of the video (0 for original): ')) || 0;
-		const fileSize = Number(prompt('Name the new file size for the video (0 for original): ')) || 0;
-		const encoder = Number(prompt('Choose the encoder (0 for x265, 1 for x264)')) || 0;
-		const outputPath = await save({ filters: [{ name: 'Video', extensions: ['mp4'] }] });
-		invoke('export_project', {
-			projectHash: projectHash,
-			startTime: startTime,
-			endTime: endTime,
-			audioVolumes: volumes.map((e) => e / 100),
-			outputFile: outputPath,
-			newHeight: height,
-			newMegabytes: fileSize,
-			encoderType: encoder === 1 ? 'x264' : 'x265'
-		});
-	}
-
 	let trackWidth: number, trackOffset: number, startLeft: number;
 </script>
 
@@ -144,7 +122,7 @@
 		style={`display: ${videoLoaded ? 'flex' : 'none'}; height: calc(100vh - 2rem);`}
 	>
 		<!-- svelte-ignore a11y-media-has-caption -->
-		<div class="flex-grow p-4">
+		<div class="flex-grow">
 			<div class="relative w-full h-full bg-containers-2-light dark:bg-containers-2-dark">
 				<video
 					class="absolute right-0 bottom-0 min-w-full min-h-full w-auto h-auto bg-cover overflow-hidden"
@@ -164,7 +142,7 @@
 					<PlayButton {play} {pause} {playing} />
 					<span class="ml-auto pr-4"
 						>{secondsToMinuteString(approxCurrentTime)}/{secondsToMinuteString(
-							Math.round(videoRef.duration)
+							Math.round($currentProject.duration)
 						)}</span
 					>
 				</div>
@@ -181,7 +159,7 @@
 							>
 						</div>
 						{#each audioSrces as src, index}
-							<AudioElem {src} {index} bind:volume={volumes[index]} />
+							<AudioElem {src} {index} bind:volume={$currentProject.volumes[index]} />
 						{/each}
 					</div>
 					<div
@@ -189,24 +167,23 @@
 						style={`grid-template-rows:  3rem repeat(${audioSrces.length}, 1.5rem)`}
 					>
 						<VideoTrimBar
-							{duration}
 							bind:trackWidth
 							bind:trackOffset
-							bind:startTime
 							bind:startLeft
-							bind:endTime
 							{pause}
 							bind:playing
 							{seek}
 							bind:videoRef
 						/>
-						{#each audioSrces as src, index}
+						{#each audioSrces as _, index}
 							<div class="relative bg-containers-2-light dark:bg-containers-2-dark rounded-lg">
 								<div
 									class="bg-secondary-light dark:bg-secondary-dark rounded-lg absolute h-full"
 									style={`width: ${
 										trackWidth + trackOffset * 2
-									}px; left: calc(${startLeft}px); opacity: ${volumes[index] === 0 ? 0 : 1}`}
+									}px; left: calc(${startLeft}px); opacity: ${
+										$currentProject.volumes[index] === 0 ? 0 : 1
+									}`}
 								/>
 							</div>
 						{/each}
@@ -214,8 +191,6 @@
 				</div>
 			</div>
 		{/if}
-
-		<button on:click={beginExport}>Export</button>
 	</div>
 	<div>
 		<ExportSettings bind:videoRef />

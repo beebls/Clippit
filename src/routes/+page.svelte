@@ -7,17 +7,23 @@
 		const selected: string = (await open({
 			filters: [{ name: 'Video', extensions: ['mp4'] }]
 		})) as string;
-		currentProject.set({ fileName: selected });
+		$currentProject.fileName = selected;
 		goto('/projectView');
 	}
 </script>
 
-<div class="w-full h-full flex-grow flex items-center justify-center">
-	<button on:click={startProject} class="bg-zinc-800 text-4xl p-4 rounded-xl">Get File</button>
-	<input
-		type="color"
-		on:change={(evt) => {
-			generateMaterialPalette(evt.target.value);
-		}}
-	/>
+<div class="w-full h-full flex-grow flex flex-col items-center justify-center relative">
+	<button
+		on:click={startProject}
+		class="bg-primaryContainer-light dark:bg-primaryContainer-dark text-onPrimaryContainer-light dark:text-onPrimaryContainer-dark text-4xl p-4 rounded-xl"
+		>Get File</button
+	>
+	<div class="absolute bottom-4">
+		<input
+			type="color"
+			on:change={(evt) => {
+				generateMaterialPalette(evt.target.value);
+			}}
+		/>
+	</div>
 </div>
