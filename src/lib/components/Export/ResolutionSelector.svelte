@@ -6,7 +6,9 @@
 	let videoHeightOptions = [{ value: 0, text: 'Original' }];
 
 	function calcHeightOptions() {
-		let temp = [{ value: 0, text: 'Original' }];
+		let temp: { value: number; text: string; subText?: string }[] = [
+			{ value: 0, text: 'Original', subText: `${videoRef.videoHeight}p` }
+		];
 		switch (true) {
 			case videoRef.videoHeight > 2160:
 				temp = [...temp, { value: 2160, text: '2160p' }, { value: 1080, text: '1080p' }];

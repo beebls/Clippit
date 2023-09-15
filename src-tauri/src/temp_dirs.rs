@@ -3,7 +3,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::path::{Path,PathBuf};
 use std::fs;
-// use tauri_api::config::BundleConfig;
 
 pub async fn get_temp_root() -> Option<PathBuf> {
   if let Some(base_dirs) = BaseDirs::new() {

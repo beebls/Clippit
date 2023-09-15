@@ -81,9 +81,10 @@
 	});
 
 	function afterDragPercentCalculation() {
-		const track = trackRef.getBoundingClientRect();
-		const start = startRef.getBoundingClientRect();
-		const end = endRef.getBoundingClientRect();
+		const track = trackRef?.getBoundingClientRect();
+		const start = startRef?.getBoundingClientRect();
+		const end = endRef?.getBoundingClientRect();
+		if (!track || !start || !end) return;
 		const startMiddle = start.right - start.width / 2;
 		const endMiddle = end.right - end.width / 2;
 

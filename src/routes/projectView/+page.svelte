@@ -17,6 +17,7 @@
 	import { secondsToMinuteString } from '$lib/utils/secondsToMinuteString';
 	import { errors } from '$lib/stores/errorStore';
 	import ExportSettings from '$lib/components/ProjectView/ExportSettings.svelte';
+	import AudioTrimBar from '$lib/components/ProjectView/AudioTrimBar.svelte';
 
 	let audioSrces: any[] = [];
 
@@ -34,6 +35,7 @@
 	}
 
 	async function startProject() {
+		if (!$currentProject.fileName) return;
 		trimFileName();
 		try {
 			const [num_audio_tracks, projectId]: [number, string] = await invoke('start_project', {
@@ -67,8 +69,6 @@
 			$errors = [err, ...$errors];
 		}
 	}
-
-	$: console.log($currentProject);
 
 	let videoRef: HTMLVideoElement;
 	let videoLoaded: boolean = false;
@@ -113,7 +113,9 @@
 		getTimeWhilePlaying();
 	}
 
-	let trackWidth: number, trackOffset: number, startLeft: number;
+	let trackWidth: number = 0,
+		trackOffset: number = 0,
+		startLeft: number = 0;
 </script>
 
 <div class="flex-grow flex">
@@ -136,7 +138,6 @@
 
 		{#if videoLoaded}
 			<div class="flex flex-col bg-containers-2-light dark:bg-containers-2-dark">
-				<!-- Info/play buttons -->
 				<div class="h-12 flex items-center pl-4 gap-2">
 					<PlayButton {play} {pause} {playing} />
 					<PlayButton {play} {pause} {playing} />
@@ -154,7 +155,7 @@
 						<div
 							class="flex items-center justify-center bg-containers-4-light dark:bg-containers-4-dark rounded-2xl"
 						>
-							<span class="overflow-ellipsis whitespace-nowrap overflow-hidden max-w-[12rem]"
+							<span class="overflow-ellipsis whitespace-nowrap overflow-hidden max-w-[12rem] px-2"
 								>{trimmedFileName}</span
 							>
 						</div>
@@ -175,17 +176,8 @@
 							{seek}
 							bind:videoRef
 						/>
-						{#each audioSrces as _, index}
-							<div class="relative bg-containers-2-light dark:bg-containers-2-dark rounded-lg">
-								<div
-									class="bg-secondary-light dark:bg-secondary-dark rounded-lg absolute h-full"
-									style={`width: ${
-										trackWidth + trackOffset * 2
-									}px; left: calc(${startLeft}px); opacity: ${
-										$currentProject.volumes[index] === 0 ? 0 : 1
-									}`}
-								/>
-							</div>
+						{#each audioSrces as test, index}
+							<AudioTrimBar {index} bind:trackOffset bind:trackWidth bind:startLeft />
 						{/each}
 					</div>
 				</div>

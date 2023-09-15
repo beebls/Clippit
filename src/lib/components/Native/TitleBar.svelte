@@ -5,12 +5,17 @@
 	import VscChromeMinimize from '../Icons/VscChromeMinimize.svelte';
 </script>
 
-<div data-tauri-drag-region class="z-[2147483647] flex">
+<div
+	data-tauri-drag-region
+	class="z-[2147483647] flex bg-containers-0-light dark:bg-containers-0-dark"
+>
 	<div class="grid place-content-center pl-2">
 		<a
 			class="text-xl titlebar-logo-text hover:scale-95 hover:active:scale-90 transition-all"
-			href="/">Clippit</a
+			href="/"
 		>
+			Clippit
+		</a>
 	</div>
 	<div class="ml-auto flex items-center justify-center">
 		<button
