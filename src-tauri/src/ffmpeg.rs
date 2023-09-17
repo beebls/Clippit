@@ -1,8 +1,6 @@
-use crate::sidecar_wrappers::{ffmpeg_command,ffprobe_command};
+use crate::sidecar_wrappers::{ffmpeg_command,ffprobe_command,add_raw_arg};
 use crate::temp_dirs::{get_project_temp_dir, get_output_dir};
 
-#[cfg(target_os = "windows")]
-use crate::sidecar_wrappers::add_raw_arg;
 
 use std::process::Command;
 use std::path::PathBuf;
@@ -97,12 +95,7 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
   if new_height.is_some() {
     command.arg("-vf");
     let scale_string = format!("scale=\"trunc(oh*a/2)*2:{}\"", new_height.unwrap());
-    
-    if cfg!(windows) {
-      command = add_raw_arg(command, scale_string);
-    } else {
-      command.arg(scale_string);
-    }
+    command = add_raw_arg(command, scale_string);
   }
   command.arg("-filter_complex");
   command.arg(audio_mux_string);

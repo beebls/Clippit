@@ -31,3 +31,10 @@ pub fn add_raw_arg(mut cmd: StdCommand, arg: String) -> StdCommand {
   cmd.raw_arg(arg);
   return cmd;
 }
+
+#[cfg(target_os = "linux")]
+pub fn add_raw_arg(mut cmd: StdCommand, arg: String) -> StdCommand {
+
+  cmd.arg(arg);
+  return cmd;
+}
