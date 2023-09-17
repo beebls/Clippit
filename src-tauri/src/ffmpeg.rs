@@ -1,6 +1,10 @@
 use crate::sidecar_wrappers::{ffmpeg_command,ffprobe_command};
 use crate::temp_dirs::{get_project_temp_dir, get_output_dir};
-use std::{process::Command, os::windows::process::CommandExt};
+
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
+use std::process::Command;
 use std::path::PathBuf;
 
 pub async fn extract_video_from_file(input_file: String, output_dir: &PathBuf) -> Result<(), String> {
@@ -92,7 +96,13 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
   audio_mux_string.push_str(&format!("amix=inputs={}[a]", num_audio_files));
   if new_height.is_some() {
     command.arg("-vf");
-    command.raw_arg(format!("scale=\"trunc(oh*a/2)*2:{}\"", new_height.unwrap()));
+    let scale_string = format!("scale=\"trunc(oh*a/2)*2:{}\"", new_height.unwrap());
+    if cfg!(windows) {
+      command.raw_arg(scale_string);
+    } else {
+      command.arg(scale_string);
+    }
+
   }
   command.arg("-filter_complex");
   command.arg(audio_mux_string);
