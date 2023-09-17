@@ -7,42 +7,15 @@
 		"distDir": "../build"
 	},
 	"package": {
-		"productName": "beeblesseries-moments",
-		"version": "0.1.0"
+		"productName": "Clippit",
+		"version": "../package.json"
 	},
 	"tauri": {
 		"allowlist": {
 			"window": {
 				"all": false,
-				"center": false,
 				"close": true,
-				"create": false,
 				"hide": true,
-				"maximize": false,
-				"minimize": false,
-				"print": false,
-				"requestUserAttention": false,
-				"setAlwaysOnTop": false,
-				"setClosable": false,
-				"setContentProtected": false,
-				"setCursorGrab": false,
-				"setCursorIcon": false,
-				"setCursorPosition": false,
-				"setCursorVisible": false,
-				"setDecorations": false,
-				"setFocus": false,
-				"setFullscreen": false,
-				"setIcon": false,
-				"setIgnoreCursorEvents": false,
-				"setMaxSize": false,
-				"setMaximizable": false,
-				"setMinSize": false,
-				"setMinimizable": false,
-				"setPosition": false,
-				"setResizable": false,
-				"setSize": false,
-				"setSkipTaskbar": false,
-				"setTitle": false,
 				"show": true,
 				"startDragging": true,
 				"unmaximize": true,
@@ -102,7 +75,10 @@
 			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
 		},
 		"updater": {
-			"active": false
+			"active": true,
+			"endpoints": ["https://raw.githubusercontent.com/beebls/Clippit/main/latest.json"],
+			"dialog": true,
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENDMTBBREZDMTVEMTYxRTcKUldUbllkRVYvSzBRekUrTnRCTEpyT1Y3UmVOY1U4eGgvYXBIUDFQTXREZkN5ZEdBbkttUU5JUm8K"
 		},
 		"windows": [
 			{
