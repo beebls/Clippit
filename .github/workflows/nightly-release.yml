@@ -75,7 +75,8 @@ jobs:
       - name: Remove Sidecar Deps (Linux)
         if: matrix.platform == 'ubuntu-20.04'
         run: |
-          sed '/\"externalBin\"/d' ./src-tauri/tauri.conf.json > ./src-tauri/tauri.conf.json
+          sed '/\"externalBin\"/d' ./src-tauri/tauri.conf.json > /tmp/tauri.conf.json
+          mv /tmp/tauri.conf.json ./src-tauri/tauri.conf.json
 
       - name: Download FFMpeg (Windows)
         if: matrix.platform == 'windows-latest'
