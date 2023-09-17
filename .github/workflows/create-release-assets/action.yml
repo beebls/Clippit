@@ -1,25 +1,25 @@
-name: "create-release-assets"
-description: "Creates release assets."
-author: "Tormak"
+name: 'create-release-assets'
+description: 'Creates release assets.'
+author: 'Tormak'
 inputs:
   GITHUB_TOKEN:
-    description: "Your GitHub token."
+    description: 'Your GitHub token.'
     required: true
 
   git_branch:
-    description: "The target release branch."
+    description: 'The target release branch.'
     required: true
 
   release_id:
-    description: "The target release id."
+    description: 'The target release id.'
     required: true
 
   release_tag:
-    description: "The target release tag."
+    description: 'The target release tag.'
     required: true
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Update Release Assets
       uses: actions/github-script@v6
@@ -85,12 +85,12 @@ runs:
             versionNoV = process.env.release_tag
           }
           const GENERIC_NAMES = {
-            "windowsInstaller": `CSSLoader.Desktop_${versionNoV}.msi`,
-            "windowsUpdater": `CSSLoader.Desktop_${versionNoV}.msi.zip`,
-            "windowsUpdaterSig": `CSSLoader.Desktop_${versionNoV}.msi.zip.sig`,
-            "linuxInstaller": `CSSLoader.Desktop_${versionNoV}.AppImage`,
-            "linuxUpdater": `CSSLoader.Desktop_${versionNoV}.AppImage.tar.gz`,
-            "linuxUpdaterSig": `CSSLoader.Desktop_${versionNoV}.AppImage.tar.gz.sig`,
+            "windowsInstaller": `Clippit_${versionNoV}.msi`,
+            "windowsUpdater": `Clippit_${versionNoV}.msi.zip`,
+            "windowsUpdaterSig": `Clippit_${versionNoV}.msi.zip.sig`,
+            "linuxInstaller": `Clippit_${versionNoV}.AppImage`,
+            "linuxUpdater": `Clippit_${versionNoV}.AppImage.tar.gz`,
+            "linuxUpdaterSig": `Clippit_${versionNoV}.AppImage.tar.gz.sig`,
           }
 
           const assets = await github.rest.repos.listReleaseAssets({
@@ -140,8 +140,8 @@ runs:
           core.setSecret(process.env.GITHUB_TOKEN);
             
           updateOrigin(`https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`);
-          config('user.email', "cssloaderdesktop.release.action@github.com");
-          config('user.name', "CSSLoader Desktop Release Action");
+          config('user.email', "Clippit.release.action@github.com");
+          config('user.name', "Clippit Release Action");
 
           await add(".");
           await commit("chore(release): updating latest.json to generated version.");
