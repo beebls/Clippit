@@ -65,7 +65,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: 'nightly'
+          ref: 'main'
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: 'nightly'
+          ref: 'main'
 
       - name: Update Release Assets
         uses: ./.github/workflows/create-release-assets
@@ -132,7 +132,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           release_id: ${{ needs.create-release.outputs.release_id }}
           release_tag: ${{ needs.create-release.outputs.tag }}
-          git_branch: 'nightly'
+          git_branch: 'main'
 
       - name: Publish Release
         id: publish-release
