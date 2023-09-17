@@ -1,5 +1,8 @@
-use crate::sidecar_wrappers::{ffmpeg_command,ffprobe_command,add_raw_arg};
+use crate::sidecar_wrappers::{ffmpeg_command,ffprobe_command};
 use crate::temp_dirs::{get_project_temp_dir, get_output_dir};
+
+#[cfg(target_os = "windows")]
+use crate::sidecar_wrappers::add_raw_arg;
 
 use std::process::Command;
 use std::path::PathBuf;
