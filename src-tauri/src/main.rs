@@ -5,6 +5,7 @@ mod temp_dirs;
 mod ffmpeg;
 mod sidecar_wrappers;
 mod build_vars;
+mod progress_file;
 
 use std::path::PathBuf;
 
