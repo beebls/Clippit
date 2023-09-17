@@ -83,6 +83,7 @@ jobs:
         run: |
           curl -L https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-full_build.zip --output ${{ runner.temp }}\ffmpeg.zip
           mkdir "${{ runner.temp }}\ffmpeg"
+          tree ${{ runner.temp }}
           tar -xvf ${{ runner.temp }}\ffmpeg.zip -C ".\ffmepg" ffmpeg-6.0-full_build/bin/ffmpeg.exe ffmpeg-6.0-full_build/bin/ffprobe.exe
           mkdir ".\src-tauri\binaries"
           copy "${{ runner.temp }}\ffmpeg\ffmpeg-6.0-full_build\bin\ffmpeg.exe" ".\src-tauri\binaries\ffmpeg-x86_64-pc-windows-msvc.exe"
