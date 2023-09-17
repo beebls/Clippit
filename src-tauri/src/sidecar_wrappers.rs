@@ -23,3 +23,11 @@ pub fn ffprobe_command() -> StdCommand {
   let command = StdCommand::new("ffprobe");
   return command;
 }
+
+#[cfg(target_os = "windows")]
+pub fn add_raw_arg(mut cmd: StdCommand, arg: String) -> StdCommand {
+  use std::os::windows::process::CommandExt;
+
+  cmd.raw_arg(arg);
+  return cmd;
+}
