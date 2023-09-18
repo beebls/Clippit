@@ -31,21 +31,21 @@ jobs:
       - name: Get Package Version
         run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
-      # - name: Conventional Changelog Action
-      #   id: changelog
-      #   uses: Tormak9970/reliable-changelog@v1
-      #   with:
-      #     github-token: ${{ secrets.github_token }}
-      #     current-version: './package.json'
-      #     version-path: 'version'
-      #     patch-commit-bump-interval: '10'
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: Tormak9970/reliable-changelog@v1
+        with:
+          github-token: ${{ secrets.github_token }}
+          current-version: './package.json'
+          version-path: 'version'
+          patch-commit-bump-interval: '10'
 
       - name: Create Release
         id: create-release
         uses: actions/github-script@v6
-        # env:
-        # RELEASE_TAG: ${{ steps.changelog.outputs.tag }}
-        # RELEASE_LOG: ${{ steps.changelog.outputs.clean_changelog }}
+        env:
+          RELEASE_TAG: ${{ steps.changelog.outputs.tag }}
+          RELEASE_LOG: ${{ steps.changelog.outputs.clean_changelog }}
         with:
           script: |
             const { data } = await github.rest.repos.createRelease({
