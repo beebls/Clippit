@@ -1,14 +1,14 @@
 {
-  "version": "0.0.1",
+  "version": "0.1.0",
   "notes": "Download the release for your platform below",
-  "pub_date": "2023-09-17T21:36:50.076Z",
+  "pub_date": "2023-09-18T02:56:47.650Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRekFYVXlXcjNKQjZ3eU1KSXFYa0Jrc3ZVZ25Va3FITWIxUFVHTDBxMlpyL21EN2Qra2Q2QXNBYVFJSTl2djRyZGxzUFhLZUoyRzFvaEd2Y01pWitnSXcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk0OTg2MzIxCWZpbGU6Y2xpcHBpdF8wLjAuMV9hbWQ2NC5BcHBJbWFnZS50YXIuZ3oKdjlpVmZySzBqdEdxTXowV1BEcVUvSGxuTXFBQjhLSCszRzNOOElVWStVamI2WlBRZjYwbDZMa1ZDY2FEczZ5VFZMWkZjZmFQRXEycFZsdXY1ZFdSRFE9PQo=",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRekF0ZE8wWTh0WC9QdnNyYS9XbEVYQUh4Wmxobmh2SVBWWUZRK2NlS1RhS01OSzhCTjNMUkZjTWUzcVJEWTZkdFlybXNHa1Y4QTg1L2tlQ0EwWEsvS0E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk1MDA1NDI5CWZpbGU6Y2xpcHBpdF8wLjEuMF9hbWQ2NC5BcHBJbWFnZS50YXIuZ3oKcExCRFZMM1N2RGJKeHFRZDZNMTJhd09aaVRkWlcxci9IQ3JqNlhURmNQU0VVWkZiYm1hbExmQnhnUHFTOHRXdGVuaVZNWDZTZ1Q3bFgxWHNrMkREQmc9PQo=",
       "url": "https://github.com/beebls/Clippit/releases/latest/download/Clippit_.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRek1PdGtONzJsVnUvcmh1djNHVkZtQzhJdGxjczJUdHlZVHhzanNjM29ETVBqM0RkOFlvOTBmMmZDQWZ1RWNRNm1WeWtqenlpOGNiMUloaUt6QVVJNVFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk0OTg2NjAzCWZpbGU6Q2xpcHBpdF8wLjAuMV94NjRfZW4tVVMubXNpLnppcAprSzFsWGJybXQyTm9SUm1hTlIyckFEV0o0S2FadlBpWnBMRjRXUi9hOXU3ZDJzL0FiSVo4cGp1WjFLYnMzSmwrSUF2ZGtrbzhJbndIS015a1QyV2tDdz09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRelBOVU9aMGpGOGt0a3hRODVTS0ZLUFZBQ3RtWUdXV0RlaFRORHIzU3VTSnVBelZIRHcybTB6SXpONzhYRkNwMWpoSkI2UDFncFNNdkw3dG9wdkk3K0FNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk1MDA1ODAwCWZpbGU6Q2xpcHBpdF8wLjEuMF94NjRfZW4tVVMubXNpLnppcAp4MVBXWCtKWEdTbXNXcWozQ2phTU1nVjJTNE5LVlpScjRhdU9xaTVDbTN1ZHpzNkUvaG1QNjU0SUM2eTc2dksyRXdSNFEwUms5RHh4dkpGQ3lUODJEdz09Cg==",
       "url": "https://github.com/beebls/Clippit/releases/latest/download/Clippit_.msi.zip"
     }
   }
