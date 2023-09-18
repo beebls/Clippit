@@ -25,3 +25,23 @@
 	font-family: 'Banigar';
 	color: white;
 }
+
+.loading-bar::before {
+	background: linear-gradient(
+		90deg,
+		var(--m3-primary-40) 0%,
+		var(--m3-primary-40) 30%,
+		transparent 31%
+	);
+}
+
+@media (prefers-color-scheme: dark) {
+	.loading-bar::before {
+		background: linear-gradient(
+			90deg,
+			var(--m3-primary-80) 0%,
+			var(--m3-primary-80) 30%,
+			transparent 31%
+		);
+	}
+}

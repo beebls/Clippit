@@ -5,6 +5,7 @@
 	import ErrorModal from '$lib/components/ErrorModal.svelte';
 	import TitleBar from '$lib/components/Native/TitleBar.svelte';
 	import AppFrame from '$lib/components/Native/AppFrame.svelte';
+	import ProgressModal from '$lib/components/Primitives/ProgressModal.svelte';
 	onMount(() => {
 		generateMaterialPalette(localStorage.getItem('materialYouBaseColor') ?? '#028090');
 	});

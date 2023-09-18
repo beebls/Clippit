@@ -3,6 +3,13 @@ export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
 		extend: {
+			keyframes: {
+				shimmer: {
+					'100%': {
+						transform: 'translateX(100%)'
+					}
+				}
+			},
 			colors: {
 				overlay: {
 					dark: '#000a',

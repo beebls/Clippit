@@ -55,7 +55,7 @@ pub async fn format_audio_track(track_num: i32, project_hash: String, volume: f3
   return Err(format!("ERROR: {} \n {}", command_output.status, String::from_utf8_lossy(&command_output.stderr)));
 }
 
-pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_audio_files: i32, start_time: f32, end_time: f32, output_path: String, new_height: Option<i32>) -> Result<(), String> {
+pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_audio_files: i32, start_time: f32, end_time: f32, output_path: String, new_height: Option<i32>, new_aspect: Option<f32>) -> Result<(), String> {
   let proj_dir_res: Option<PathBuf> = get_project_temp_dir(project_hash.to_owned()).await;
   if proj_dir_res.is_none() {
     return Err("Can't get project dir".to_owned());
@@ -92,9 +92,20 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
     acc = acc + 1;
   }
   audio_mux_string.push_str(&format!("amix=inputs={}[a]", num_audio_files));
-  if new_height.is_some() {
+  if new_height.is_some() || new_aspect.is_some() {
     command.arg("-vf");
-    let scale_string = format!("scale=\"trunc(oh*a/2)*2:{}\"", new_height.unwrap());
+    let mut formatted_height: String = "ih".to_owned();
+    if new_height.is_some() {
+      formatted_height = new_height.unwrap().to_string();
+    }
+
+    let mut formatted_aspect: String = "a".to_owned();
+    if new_aspect.is_some() {
+      formatted_aspect = new_aspect.unwrap().to_string();
+    }
+
+    let scale_string = format!("scale=\"trunc(oh*{}/2)*2:{}\",setsar=1", formatted_aspect, formatted_height);
+    println!("{}", scale_string);
     command = add_raw_arg(command, scale_string);
   }
   command.arg("-filter_complex");

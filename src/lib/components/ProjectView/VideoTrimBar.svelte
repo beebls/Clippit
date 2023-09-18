@@ -74,7 +74,6 @@
 		setTimeout(() => {
 			let start = startRef?.getBoundingClientRect();
 			trackWidth = trackRef?.getBoundingClientRect().width - start.width * 2;
-			console.log(trackWidth, trackRef?.getBoundingClientRect());
 			trackOffset = start.width;
 		}, 10);
 		window.addEventListener('resize', afterDragPercentCalculation);

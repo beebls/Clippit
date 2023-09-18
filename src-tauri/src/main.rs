@@ -11,6 +11,7 @@ use std::path::PathBuf;
 
 use temp_dirs::{get_project_temp_dir,create_temp_dir,get_output_dir};
 use ffmpeg::{extract_video_from_file,split_out_single_audio_track,get_num_audio_tracks,format_audio_track,merge_audios_into_video_and_downscale,encode_video_to_specific_filesize};
+use progress_file::{write_import_progress_file, write_export_progress_file};
 
 fn main() {
   tauri::Builder::default()
@@ -35,6 +36,7 @@ async fn start_project(file_name: String) -> Result<(i32, String), String> {
   }
   let full_temp_path = temp_path_option.unwrap();
 
+  write_import_progress_file(temp_hash.to_owned(), "Extracting Video".to_owned(), 1).await;
   match extract_video_from_file(file_name.to_owned(), &full_temp_path).await {
     Ok(_) => {},
     Err(error) => return Err(format!("Error Extracting Video: {}", error))
@@ -43,20 +45,22 @@ async fn start_project(file_name: String) -> Result<(i32, String), String> {
   let mut acc: i32 = 0;
   while acc < num_audio_tracks {
     println!("Creating audio file {}", acc);
+    write_import_progress_file(temp_hash.to_owned(), format!("Extracting Audio Track {}", acc + 1), acc + 2).await;
     match split_out_single_audio_track(acc, file_name.to_owned(), &full_temp_path).await {
-      Ok(_) => acc = acc + 1,
+      Ok(_) => acc += 1,
       Err(error) => return Err(format!("Error Extracting Audio Track {}: {}", acc, error)),
     };
   
   }
   println!("Created temp dir with hash {}, and the audio file has {} tracks", temp_hash, num_audio_tracks);
   println!("output dir {}", full_temp_path.to_string_lossy());
+  write_import_progress_file(temp_hash.to_owned(), "Done".to_owned(), acc + 2).await;
   return Ok((num_audio_tracks, temp_hash));
 }
 
-// new_height will be set to 0 if it shouldn't be scaled
+// "new" values are set to 0 if they aren't meant to be changed;
 #[tauri::command]
-async fn export_project(project_hash: String, start_time: f32, end_time: f32, audio_volumes: Vec<f32>, output_file: String, new_height: i32, new_megabytes: f32, encoder_type: String) -> Result<String, String> {
+async fn export_project(project_hash: String, start_time: f32, end_time: f32, audio_volumes: Vec<f32>, output_file: String, new_height: i32, new_megabytes: f32, new_aspect: f32, encoder_type: String) -> Result<String, String> {
   let output_dir_res = get_output_dir(project_hash.to_owned()).await;
   if output_dir_res.is_none() {
     return Err("Cannot create temp output dir".to_owned());
@@ -64,6 +68,7 @@ async fn export_project(project_hash: String, start_time: f32, end_time: f32, au
   let output_dir = output_dir_res.unwrap();
 
   for (index, element) in audio_volumes.iter().enumerate() {
+    write_export_progress_file(project_hash.to_owned(), format!("Format audio track {}", index), 1.0).await;
     let res = format_audio_track(index as i32, project_hash.to_owned(), element.to_owned(), start_time, end_time).await;
     if res.is_err() {
       return Err(format!("Error formatting audio track {}: {}", index, res.unwrap_err()));
@@ -73,15 +78,28 @@ async fn export_project(project_hash: String, start_time: f32, end_time: f32, au
   let formatted_height: Option<i32>;
   if new_height == 0 {
     formatted_height = None;
+    write_export_progress_file(project_hash.to_owned(), "Do Not Rescale Video".to_owned(), 2.0).await;
   } else {
+    write_export_progress_file(project_hash.to_owned(), format!("Rescale video to {}p", new_height), 2.0).await;
     formatted_height = Some(new_height);
   }
 
   let formatted_megabytes: Option<f32>;
   if new_megabytes == 0.0 {
     formatted_megabytes = None;
+    write_export_progress_file(project_hash.to_owned(), "Do Not Re-encode Video".to_owned(), 2.1).await;
   } else {
     formatted_megabytes = Some(new_megabytes);
+    write_export_progress_file(project_hash.to_owned(), format!("Re-encode video to {}MB", new_megabytes), 2.1).await;
+  }
+
+  let formatted_aspect: Option<f32>;
+  if new_aspect == 0.0 {
+    formatted_aspect = None;
+    write_export_progress_file(project_hash.to_owned(), "Keep same aspect ratio.".to_owned(), 2.2).await;
+  } else {
+    formatted_aspect = Some(new_aspect);
+    write_export_progress_file(project_hash.to_owned(), format!("New aspect ratio of {}", new_aspect), 2.2).await;
   }
 
   let mut formatted_encoder: String = "x264".to_owned();
@@ -93,25 +111,31 @@ async fn export_project(project_hash: String, start_time: f32, end_time: f32, au
   } else if x264_values.contains(&encoder_type) {
     formatted_encoder = "x264".to_owned();
   }
+  write_export_progress_file(project_hash.to_owned(), format!("Use encoder type {}", formatted_encoder), 2.2).await;
+
 
 
   if formatted_megabytes.is_some() {
     let downscaled_video_path: PathBuf = output_dir.join("downscaled.mp4");
 
-    let downscale_res: Result<(), String> = merge_audios_into_video_and_downscale(project_hash.to_owned(), audio_volumes.len() as i32, start_time, end_time, downscaled_video_path.to_string_lossy().to_string(), formatted_height).await;
+    write_export_progress_file(project_hash.to_owned(), "Merging Audio and Downscaling Video".to_owned(), 3.0).await;
+    let downscale_res: Result<(), String> = merge_audios_into_video_and_downscale(project_hash.to_owned(), audio_volumes.len() as i32, start_time, end_time, downscaled_video_path.to_string_lossy().to_string(), formatted_height, formatted_aspect).await;
     if downscale_res.is_err() {
       return Err(format!("Could not downscale video: {}", downscale_res.unwrap_err()));
     }
 
-    let encode_res = encode_video_to_specific_filesize(project_hash, downscaled_video_path.to_string_lossy().to_string(), output_file, formatted_megabytes.unwrap(), formatted_encoder).await;
+    write_export_progress_file(project_hash.to_owned(), "Re-encoding Video".to_owned(), 4.0).await;
+    let encode_res = encode_video_to_specific_filesize(project_hash.to_owned(), downscaled_video_path.to_string_lossy().to_string(), output_file, formatted_megabytes.unwrap(), formatted_encoder).await;
     if encode_res.is_err() {
       return Err(format!("Could not re-encode video: {}", encode_res.unwrap_err()));
     }
   } else {
-    let downscale_res: Result<(), String> = merge_audios_into_video_and_downscale(project_hash, audio_volumes.len() as i32, start_time, end_time, output_file, formatted_height).await;
+    write_export_progress_file(project_hash.to_owned(), "Merging Audio and Downscaling Video".to_owned(), 3.0).await;
+    let downscale_res: Result<(), String> = merge_audios_into_video_and_downscale(project_hash.to_owned(), audio_volumes.len() as i32, start_time, end_time, output_file, formatted_height, formatted_aspect).await;
     if downscale_res.is_err() {
       return Err(format!("Could not downscale video: {}", downscale_res.unwrap_err()));
      }
   }
+  write_export_progress_file(project_hash.to_owned(), "Done!".to_owned(), 5.0).await;
   return Ok("Success!".to_owned());
 }

@@ -18,6 +18,8 @@
 	import { errors } from '$lib/stores/errorStore';
 	import ExportSettings from '$lib/components/ProjectView/ExportSettings.svelte';
 	import AudioTrimBar from '$lib/components/ProjectView/AudioTrimBar.svelte';
+	import ImportProgressModal from '$lib/components/ImportProgressModal.svelte';
+	import GlobalVolumeButton from '$lib/components/ProjectView/GlobalVolumeButton.svelte';
 
 	let audioSrces: any[] = [];
 
@@ -35,7 +37,11 @@
 	}
 
 	async function startProject() {
-		if (!$currentProject.fileName) return;
+		if (!$currentProject.fileName) {
+			$errors = [...$errors, 'No filename provided by selection'];
+			return;
+		}
+
 		trimFileName();
 		try {
 			const [num_audio_tracks, projectId]: [number, string] = await invoke('start_project', {
@@ -135,12 +141,15 @@
 				/>
 			</div>
 		</div>
+		{#if !videoLoaded}
+			<ImportProgressModal />
+		{/if}
 
 		{#if videoLoaded}
 			<div class="flex flex-col bg-containers-2-light dark:bg-containers-2-dark">
 				<div class="h-12 flex items-center pl-4 gap-2">
 					<PlayButton {play} {pause} {playing} />
-					<PlayButton {play} {pause} {playing} />
+					<GlobalVolumeButton />
 					<span class="ml-auto pr-4"
 						>{secondsToMinuteString(approxCurrentTime)}/{secondsToMinuteString(
 							Math.round($currentProject.duration)

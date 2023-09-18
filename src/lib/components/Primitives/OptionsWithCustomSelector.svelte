@@ -3,6 +3,7 @@
 
 	export let chosenValue = 0;
 	export let customValueAnnotation: string = '';
+	export let hasCustomOption: boolean = true;
 
 	let chosenOption: number = 0;
 
@@ -53,34 +54,36 @@
 			</button>
 		{/each}
 
-		{#if usingCustomOption}
-			<div
-				class={`${
-					usingCustomOption ? 'text-primary-light dark:text-primary-dark' : ''
-				} w-20 h-full flex items-center justify-center gap-[1px] relative`}
-			>
-				<!-- svelte-ignore a11y-autofocus -->
-				<input
-					class="bg-transparent w-full h-full outline-none"
-					style={customValueAnnotation ? 'text-align: right;' : 'text-align: center;'}
-					type="string"
-					maxlength="4"
-					autofocus
-					bind:value={customOption}
-					on:input={onCustomInput}
-				/>
-				{#if customValueAnnotation}
-					<span class="mr-4 pt-0.5">{customValueAnnotation}</span>
-				{/if}
-			</div>
-		{:else}
-			<button
-				on:click={() => {
-					usingCustomOption = true;
-					chosenOption = -1;
-				}}
-				class={`bg-containers-0-light dark:bg-containers-0-dark w-20 h-full`}>Custom</button
-			>
+		{#if hasCustomOption}
+			{#if usingCustomOption}
+				<div
+					class={`${
+						usingCustomOption ? 'text-primary-light dark:text-primary-dark' : ''
+					} w-20 h-full flex items-center justify-center gap-[1px] relative`}
+				>
+					<!-- svelte-ignore a11y-autofocus -->
+					<input
+						class="bg-transparent w-full h-full outline-none"
+						style={customValueAnnotation ? 'text-align: right;' : 'text-align: center;'}
+						type="string"
+						maxlength="4"
+						autofocus
+						bind:value={customOption}
+						on:input={onCustomInput}
+					/>
+					{#if customValueAnnotation}
+						<span class="mr-4 pt-0.5">{customValueAnnotation}</span>
+					{/if}
+				</div>
+			{:else}
+				<button
+					on:click={() => {
+						usingCustomOption = true;
+						chosenOption = -1;
+					}}
+					class={`bg-containers-0-light dark:bg-containers-0-dark w-20 h-full`}>Custom</button
+				>
+			{/if}
 		{/if}
 	</div>
 </div>

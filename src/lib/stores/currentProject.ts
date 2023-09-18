@@ -8,14 +8,18 @@ export interface CurrentProject {
 	duration: number;
 	volumes: number[];
 	globalVolume: number;
+	isExporting: boolean;
 }
 
-export const currentProject = writable<CurrentProject>({
+export const defaultProject = {
 	fileName: '',
 	projectHash: '',
 	startTime: 0,
 	endTime: 0,
 	duration: 0,
 	globalVolume: 1,
-	volumes: []
-});
+	volumes: [],
+	isExporting: false
+};
+
+export const currentProject = writable<CurrentProject>({ ...defaultProject });

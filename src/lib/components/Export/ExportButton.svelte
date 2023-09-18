@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { currentProject } from '$lib/stores/currentProject';
+	import { errors } from '$lib/stores/errorStore';
 	import { invoke } from '@tauri-apps/api';
 	import { save } from '@tauri-apps/api/dialog';
 
 	export let resolution: number;
 	export let fileSize: number;
 	export let encoder: 'x264' | 'x265' = 'x264';
+	export let aspectRatio: number;
 
 	async function beginExport() {
 		const outputPath = await save({ filters: [{ name: 'Video', extensions: ['mp4'] }] });
-		invoke('export_project', {
+		$currentProject.isExporting = true;
+		await invoke('export_project', {
 			projectHash: $currentProject.projectHash,
 			startTime: $currentProject.startTime,
 			endTime: $currentProject.endTime,
@@ -17,8 +20,13 @@
 			outputFile: outputPath,
 			newHeight: resolution,
 			newMegabytes: fileSize,
-			encoderType: encoder
+			encoderType: encoder,
+			newAspect: aspectRatio
+		}).catch((err) => {
+			$currentProject.isExporting = false;
+			$errors = [...$errors, err];
 		});
+		$currentProject.isExporting = false;
 	}
 </script>
 

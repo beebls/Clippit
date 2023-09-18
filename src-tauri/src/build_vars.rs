@@ -1,6 +1,6 @@
 pub fn is_using_sidecar() -> bool {
   if cfg!(windows) {
-    return false;
+    return true;
   } else if cfg!(unix) {
     return false;
   }
