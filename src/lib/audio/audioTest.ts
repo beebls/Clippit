@@ -3,6 +3,13 @@ const audioContext = new AudioContext();
 let audioElements: HTMLAudioElement[] = [];
 let gainNodes: { id: string; node: GainNode }[] = [];
 
+let masterGainNode: GainNode = new GainNode(audioContext);
+masterGainNode.connect(audioContext.destination);
+
+export function setGlobalVolume(volume: number) {
+	masterGainNode.gain.setValueAtTime(volume, masterGainNode.context.currentTime + 0.001);
+}
+
 export function connectElement(querySelector: string): GainNode {
 	let audioElement = document.querySelector(querySelector) as HTMLAudioElement;
 	if (audioElements.map((e) => e.id).includes(audioElement.id)) {
@@ -18,7 +25,7 @@ export function connectElement(querySelector: string): GainNode {
 	let track = audioContext.createMediaElementSource(audioElement);
 	track.connect(gainNode);
 
-	gainNode.connect(audioContext.destination);
+	gainNode.connect(masterGainNode);
 	return gainNode;
 }
 

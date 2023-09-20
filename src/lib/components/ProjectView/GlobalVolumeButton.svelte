@@ -6,11 +6,14 @@
 	// @ts-ignore
 	import FaVolumeMute from 'svelte-icons/fa/FaVolumeMute.svelte';
 	import { currentProject } from '$lib/stores/currentProject';
+	import { setGlobalVolume } from '$lib/audio/audioTest';
 
 	let globalVolume: number = $currentProject.globalVolume * 100;
 
 	function onGlobalVolumeChange(evt: any) {
-		$currentProject.globalVolume = evt.target.value / 100;
+		const globalVolume = evt.target.value / 100;
+		$currentProject.globalVolume = globalVolume;
+		setGlobalVolume(globalVolume);
 	}
 </script>
 
