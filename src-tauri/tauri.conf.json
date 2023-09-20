@@ -42,8 +42,8 @@
 			"active": true,
 			"category": "DeveloperTool",
 			"copyright": "",
-			"deb": {
-				"depends": []
+			"appimage": {
+				"bundleMediaFramework": true
 			},
 			"externalBin": ["binaries/ffmpeg", "binaries/ffprobe"],
 			"icon": [
