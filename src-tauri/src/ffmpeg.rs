@@ -122,6 +122,7 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
   if command_output.status.success() {
     return Ok(());
   }
+  
   return Err(format!("ERROR: {}", command_output.status));
 }
 
