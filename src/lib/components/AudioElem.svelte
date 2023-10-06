@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { connectElement } from '$lib/audio/audioTest';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	// @ts-ignore
 	import FaVolumeUp from 'svelte-icons/fa/FaVolumeUp.svelte';
 	// @ts-ignore
@@ -16,6 +16,25 @@
 
 	let elem: HTMLAudioElement;
 	let gainNode: GainNode;
+
+	function onClickWhileOpen(evt) {
+		let id = evt.target.id as string | undefined;
+		if (!id || !id.startsWith(alphabet[index])) {
+			volumeControlOpen = false;
+		}
+	}
+
+	$: if (volumeControlOpen) {
+		setTimeout(() => {
+			window.addEventListener('click', onClickWhileOpen);
+		}, 10);
+	} else {
+		window.removeEventListener('click', onClickWhileOpen);
+	}
+
+	onDestroy(() => {
+		window.removeEventListener('click', onClickWhileOpen);
+	});
 
 	onMount(() => {
 		const newGainNode = connectElement(`#${alphabet[index]}`);
@@ -56,9 +75,11 @@
 	</button>
 	{#if volumeControlOpen}
 		<div
+			id={alphabet[index] + 'div'}
 			class="absolute z-[1000] -bottom-full left-full -translate-x-1/2 bg-containers-6-light dark:bg-containers-6-dark rounded-full h-5"
 		>
 			<input
+				id={alphabet[index] + 'input'}
 				class="mx-4"
 				type="range"
 				min="0"

@@ -21,6 +21,7 @@
 	}
 
 	function onDrop(evt: string[]) {
+		console.log(evt);
 		if (evt && evt[0]) {
 			startProject(evt[0]);
 		}
@@ -47,7 +48,7 @@
 		<input
 			type="color"
 			on:change={(evt) => {
-				generateMaterialPalette(evt.target.value);
+				generateMaterialPalette(evt?.target?.value);
 			}}
 		/>
 	</div>
