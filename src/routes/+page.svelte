@@ -3,7 +3,6 @@
 	import { currentProject, defaultProject } from '$lib/stores/currentProject';
 	import { generateMaterialPalette } from '$lib/utils/generateMaterialPalette';
 	import { open } from '@tauri-apps/api/dialog';
-
 	import FileDrop from 'svelte-tauri-filedrop';
 
 	async function startProject(filePath: string) {
@@ -19,12 +18,15 @@
 		})) as string;
 		startProject(selected);
 	}
-
 	function onDrop(evt: string[]) {
 		console.log(evt);
 		if (evt && evt[0]) {
 			startProject(evt[0]);
 		}
+	}
+
+	function onColorChange(evt: any) {
+		generateMaterialPalette(evt?.target?.value);
 	}
 </script>
 
@@ -45,11 +47,6 @@
 	</FileDrop>
 
 	<div class="absolute bottom-4">
-		<input
-			type="color"
-			on:change={(evt) => {
-				generateMaterialPalette(evt?.target?.value);
-			}}
-		/>
+		<input type="color" on:change={onColorChange} />
 	</div>
 </div>

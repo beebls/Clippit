@@ -17,7 +17,7 @@
 	let elem: HTMLAudioElement;
 	let gainNode: GainNode;
 
-	function onClickWhileOpen(evt) {
+	function onClickWhileOpen(evt: any) {
 		let id = evt.target.id as string | undefined;
 		if (!id || !id.startsWith(alphabet[index])) {
 			volumeControlOpen = false;
