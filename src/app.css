@@ -23,7 +23,6 @@
 .titlebar-logo-text {
 	letter-spacing: 0.05em;
 	font-family: 'Banigar';
-	color: white;
 }
 
 .loading-bar::before {

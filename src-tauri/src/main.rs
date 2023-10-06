@@ -6,18 +6,26 @@ mod ffmpeg;
 mod sidecar_wrappers;
 mod build_vars;
 mod progress_file;
+mod winapi;
+mod user_prefs;
 
 use std::path::PathBuf;
 
 use temp_dirs::{get_project_temp_dir,create_temp_dir,get_output_dir};
 use ffmpeg::{extract_video_from_file,split_out_single_audio_track,get_num_audio_tracks,format_audio_track,merge_audios_into_video_and_downscale,encode_video_to_specific_filesize};
 use progress_file::{write_import_progress_file, write_export_progress_file};
+use user_prefs::get_accent_color as get_platform_accent_color;
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![start_project, export_project])
+    .invoke_handler(tauri::generate_handler![start_project, export_project, get_accent_color])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+}
+
+#[tauri::command]
+async fn get_accent_color() -> [u8; 4] {
+  get_platform_accent_color().await
 }
 
 #[tauri::command]
@@ -55,7 +63,7 @@ async fn start_project(file_name: String) -> Result<(i32, String), String> {
   println!("Created temp dir with hash {}, and the audio file has {} tracks", temp_hash, num_audio_tracks);
   println!("output dir {}", full_temp_path.to_string_lossy());
   write_import_progress_file(temp_hash.to_owned(), "Done".to_owned(), acc + 2).await;
-  return Ok((num_audio_tracks, temp_hash));
+  Ok((num_audio_tracks, temp_hash))
 }
 
 // "new" values are set to 0 if they aren't meant to be changed;
@@ -137,5 +145,5 @@ async fn export_project(project_hash: String, start_time: f32, end_time: f32, au
      }
   }
   write_export_progress_file(project_hash.to_owned(), "Done!".to_owned(), 5.0).await;
-  return Ok("Success!".to_owned());
+  Ok("Success!".to_owned())
 }

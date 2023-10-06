@@ -78,7 +78,7 @@
 			"active": true,
 			"endpoints": ["https://raw.githubusercontent.com/beebls/Clippit/main/latest.json"],
 			"dialog": true,
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUzRjhFQ0MxNjI1Nzg0OTEKUldTUmhGZGl3ZXo0VTVqc1RNc1VlZzZaWHUrelk5dHFIQnBhNWJzSkx2RVk5TkpwOWJYczg0Q0QK"
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENDMTBBREZDMTVEMTYxRTcKUldUbllkRVYvSzBRekUrTnRCTEpyT1Y3UmVOY1U4eGgvYXBIUDFQTXREZkN5ZEdBbkttUU5JUm8K"
 		},
 		"windows": [
 			{

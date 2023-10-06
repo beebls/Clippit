@@ -7,7 +7,7 @@
 
 <div
 	data-tauri-drag-region
-	class="z-[2147483647] flex bg-containers-0-light dark:bg-containers-0-dark"
+	class="z-[2147483647] w-full text-black dark:text-white fixed top-0 left-0 right-0 flex bg-containers-0-light dark:bg-containers-0-dark rounded-t-lg border-x-[1px] border-t-[1px] border-[#2f2f2f]"
 >
 	<div class="grid place-content-center pl-2">
 		<a

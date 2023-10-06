@@ -5,9 +5,13 @@
 	import ErrorModal from '$lib/components/ErrorModal.svelte';
 	import TitleBar from '$lib/components/Native/TitleBar.svelte';
 	import AppFrame from '$lib/components/Native/AppFrame.svelte';
-	import ProgressModal from '$lib/components/Primitives/ProgressModal.svelte';
-	onMount(() => {
-		generateMaterialPalette(localStorage.getItem('materialYouBaseColor') ?? '#028090');
+	import { invoke } from '@tauri-apps/api/tauri';
+	onMount(async () => {
+		let systemAccentColor: number[] | string = await invoke('get_accent_color');
+		if (systemAccentColor[3] === 0) {
+			systemAccentColor = localStorage.getItem('materialYouBaseColor') ?? '#028090';
+		}
+		generateMaterialPalette(systemAccentColor);
 	});
 </script>
 

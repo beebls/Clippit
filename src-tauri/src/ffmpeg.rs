@@ -6,7 +6,7 @@ use std::process::Command;
 use std::path::PathBuf;
 
 pub async fn extract_video_from_file(input_file: String, output_dir: &PathBuf) -> Result<(), String> {
-  let command_output: std::process::Output = ffmpeg_command().args(["-i", &input_file, "-map", "0:v:0", "-c", "copy", &output_dir.join("video.mp4").to_string_lossy()]).output().expect("Failed to execute the process");
+  let command_output: std::process::Output = ffmpeg_command().args(["-i", &input_file, "-map", "0:v:0", "-c", "copy", "-y", &output_dir.join("video.mp4").to_string_lossy()]).output().expect("Failed to execute the process");
 
   if command_output.status.success() {
     return Ok(());
@@ -15,7 +15,7 @@ pub async fn extract_video_from_file(input_file: String, output_dir: &PathBuf) -
 }
 
 pub async fn split_out_single_audio_track(track_num: i32, input_file: String, output_dir: &PathBuf) -> Result<(), String> {
-  let command_output: std::process::Output = ffmpeg_command().args(["-i", &input_file, "-map", &format!("0:a:{}", track_num), &output_dir.join(format!("track_{}.mp3", track_num)).to_string_lossy()]).output().expect("Failed to execute the process");
+  let command_output: std::process::Output = ffmpeg_command().args(["-i", &input_file, "-map", &format!("0:a:{}", track_num), "-y", &output_dir.join(format!("track_{}.mp3", track_num)).to_string_lossy()]).output().expect("Failed to execute the process");
 
   if command_output.status.success() {
     return Ok(());
@@ -46,7 +46,7 @@ pub async fn format_audio_track(track_num: i32, project_hash: String, volume: f3
   let input_path: PathBuf = full_temp_path.join(&track_file_name);
   let output_path: PathBuf = full_temp_path.join("output").join(&track_file_name);
 
-  let command_output: std::process::Output = ffmpeg_command().args(["-ss", &start_time.to_string(), "-to", &end_time.to_string(), "-i", &input_path.to_string_lossy(), "-filter:a", &format!("volume={}", volume), &output_path.to_string_lossy()]).output().expect("Failed to execute the process");
+  let command_output: std::process::Output = ffmpeg_command().args(["-ss", &start_time.to_string(), "-to", &end_time.to_string(), "-i", &input_path.to_string_lossy(), "-filter:a", &format!("volume={}", volume), "-y", &output_path.to_string_lossy()]).output().expect("Failed to execute the process");
 
   if command_output.status.success() {
     return Ok(());
@@ -114,6 +114,7 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
   command.arg("0");
   command.arg("-map");
   command.arg("[a]");
+  command.arg("-y");
   command.arg(output_path);
 
   println!("{:?}", command.get_args());
@@ -122,7 +123,7 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
   if command_output.status.success() {
     return Ok(());
   }
-  
+
   return Err(format!("ERROR: {}", command_output.status));
 }
 
