@@ -89,7 +89,7 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
     let file_str: String = file_path.to_string_lossy().to_string();
     command.arg("-i");
     command.arg(file_str);
-    acc = acc + 1;
+    acc += 1;
   }
   audio_mux_string.push_str(&format!("amix=inputs={}[a]", num_audio_files));
   if new_height.is_some() || new_aspect.is_some() {
@@ -115,6 +115,8 @@ pub async fn merge_audios_into_video_and_downscale(project_hash: String, num_aud
   command.arg("-map");
   command.arg("[a]");
   command.arg(output_path);
+
+  println!("{:?}", command.get_args());
 
   let command_output: std::process::Output = command.output().expect("Failed to execute process");
   if command_output.status.success() {
@@ -188,6 +190,7 @@ pub async fn encode_video_to_specific_filesize(project_hash: String, input_file:
   }
   let pass_one_output: std::process::Output = pass_one.output().expect("Failed to execute process");
   if !pass_one_output.status.success() {
+    println!("{}", String::from_utf8_lossy(&pass_one_output.stderr));
     return Err(format!("ERROR During Pass One: {}", pass_one_output.status));
   }
 
