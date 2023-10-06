@@ -51,14 +51,14 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `nightly-${process.env.PACKAGE_VERSION}`,
-              name: `Clippit Nightly ${process.env.PACKAGE_VERSION}`,
+              tag_name: `v${process.env.RELEASE_TAG}`,
+              name: `Clippit ${process.env.RELEASE_TAG}`,
               body: `idk buh`,
               draft: true,
               prerelease: true
             });
 
-            core.setOutput("tag", `nightly-${process.env.PACKAGE_VERSION}`);
+            core.setOutput("tag", `v${process.env.RELEASE_TAG}`);
 
             return data.id
 

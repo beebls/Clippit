@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appWindow } from '@tauri-apps/api/window';
+	import { clippit } from '$lib/stores/appStore';
 	import VscChromeClose from '../Icons/VscChromeClose.svelte';
 	import VscChromeMaximize from '../Icons/VscChromeMaximize.svelte';
 	import VscChromeMinimize from '../Icons/VscChromeMinimize.svelte';
@@ -7,7 +8,9 @@
 
 <div
 	data-tauri-drag-region
-	class="z-[2147483647] w-full text-black dark:text-white fixed top-0 left-0 right-0 flex bg-containers-0-light dark:bg-containers-0-dark rounded-t-lg border-x-[1px] border-t-[1px] border-[#2f2f2f]"
+	class={`z-[2147483647] w-full text-black dark:text-white fixed top-0 left-0 right-0 flex bg-containers-0-light dark:bg-containers-0-dark overflow-hidden border-x-[1px] border-t-[1px] border-[#2f2f2f] ${
+		$clippit.maximized ? 'rounded-t-none' : 'rounded-t-lg'
+	}`}
 >
 	<div class="grid place-content-center pl-2">
 		<a
