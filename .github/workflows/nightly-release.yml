@@ -53,7 +53,7 @@ jobs:
               repo: context.repo.repo,
               tag_name: `${process.env.RELEASE_TAG}`,
               name: `Clippit ${process.env.RELEASE_TAG}`,
-              body: `idk buh`,
+              body: `${process.env.RELEASE_LOG}`,
               draft: true,
               prerelease: true
             });
