@@ -1,15 +1,15 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "notes": "Download the release for your platform below",
-  "pub_date": "2023-10-06T04:05:16.558Z",
+  "pub_date": "2023-10-06T04:26:47.418Z",
   "platforms": {
-    "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRekNWYWw0d1NoSU1IMnRqbVRHYngyeUZtWXFxamg5Q3JxRHk4a3o3emE5cDByaUdWSHlEZVhodVBVWHdERmxYNVNmNHI3ZTc1YVFpUytjUWgvSHkyOUFZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk2NTY1MDQ3CWZpbGU6Y2xpcHBpdF8wLjIuMF9hbWQ2NC5BcHBJbWFnZS50YXIuZ3oKV1lVYzdSTjdTTEhES0NzS0svdmlJbXAwRXFvRTRzNE5VdGNSMzRwWVNwQUY3L0gzK1BKNStFNWtySmgzMGRsT0djajFadXdNQzhzeE96RUJ2eTNWQlE9PQo=",
-      "url": "https://github.com/beebls/Clippit/releases/download/v0.2.0/Clippit_0.2.0.AppImage.tar.gz"
-    },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRekNJd3huLzFIU1pRRnBlbzdxNVM2a2JFQVFYS2FvQ2JvOGs5MHVxT2RDVHRDMTd2Mm9yalJ1c1NLUGtlb01DSk1VY0xPN1AxSGtyc25wU1FVTW4xamdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk2NTY1MTA2CWZpbGU6Q2xpcHBpdF8wLjIuMF94NjRfZW4tVVMubXNpLnppcApFWlJQby9rSXV1ZjR0TlM1c0w0WE5zdzJEc0FxK2xGNVFGRVlRS1dUbDlZbkJUTGxtOXVUbmJTOENoMG53Z1NvbHFhMVlaVHJJSE83YnVOMDZtYWNDUT09Cg==",
-      "url": "https://github.com/beebls/Clippit/releases/download/v0.2.0/Clippit_0.2.0.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRelBDekYvd3JWSHFPNSt3di9iZDFsQVFCem5UZFREZkVLMVVMemhjOU4zNHdERHNuUEtSV3cvUVNDWG5iK1A0blY2S3FHUytESjE5emN1SXIxQ25lNlE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk2NTY2MjA5CWZpbGU6Q2xpcHBpdF8wLjIuMV94NjRfZW4tVVMubXNpLnppcApCUTNHTkJqMkRzZjkzTmZUSjJyREp6TGhRakJTeHlxYno5RFdDSVpnaHl2WVVjN3krUTNZSTYwTDQ5TnpsampsYnZ0WGVXQ1RuRCtXanRBSE5UN0ZDZz09Cg==",
+      "url": "https://github.com/beebls/Clippit/releases/download/v0.2.1/Clippit_0.2.1.msi.zip"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUbllkRVYvSzBRekMzampmdkJCejZSS0trTnMzREhJRTJkb1VHZHZkY1AzSkVBSVdFbGE0MGFYNUdyc0R3cDlpaFgwRlplR0ZVN0hyeld2NytjM2w0K1pPSE94RCtXSEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk2NTY2Mzk5CWZpbGU6Y2xpcHBpdF8wLjIuMV9hbWQ2NC5BcHBJbWFnZS50YXIuZ3oKbHRaSGNCaXExbFZ6NWFoYnFzUjRoZFF1bTdJdE1Pb2FXYWxIRDBQTEp2UzJBaEUyTFFUMENjOXpuSEJtQVRhY2RJWlNWNWRWcUVUdEpvTmhCQ1dVQ0E9PQo=",
+      "url": "https://github.com/beebls/Clippit/releases/download/v0.2.1/Clippit_0.2.1.AppImage.tar.gz"
     }
   }
 }
