@@ -8,9 +8,6 @@
 		unlisten = await appWindow.onResized(async () => {
 			$clippit.maximized = await appWindow.isMaximized();
 		});
-		appWindow.listen('tauri://update-status', (evt) => {
-			console.log(evt);
-		});
 	});
 
 	onDestroy(() => {

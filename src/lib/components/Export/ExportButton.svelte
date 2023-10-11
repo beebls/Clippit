@@ -11,6 +11,7 @@
 
 	async function beginExport() {
 		const outputPath = await save({ filters: [{ name: 'Video', extensions: ['mp4'] }] });
+		if (!outputPath) return;
 		$currentProject.isExporting = true;
 		await invoke('export_project', {
 			projectHash: $currentProject.projectHash,
