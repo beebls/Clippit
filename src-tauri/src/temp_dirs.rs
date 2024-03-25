@@ -17,6 +17,29 @@ pub async fn get_temp_root() -> Option<PathBuf> {
     None
 }
 
+pub async fn clear_temp_dir() -> Result<(), String> {
+    let temp_root = get_temp_root().await;
+    if temp_root.is_none() {
+        // If there is no temp dir there's nothing to clear
+        return Ok(());
+    }
+    // Remove all folders within the temp_root, without removing temp_root itself
+
+    let temp_root_unwrapped = temp_root.unwrap();
+
+    let remove_res: Result<(), std::io::Error> = fs::remove_dir_all(&temp_root_unwrapped);
+    if remove_res.is_err() {
+        return Err(String::from("Error Removing Folder"));
+    }
+
+    let create_res: Result<(), std::io::Error> = fs::create_dir_all(temp_root_unwrapped);
+    if create_res.is_err() {
+        return Err(String::from("Error Recreating Temp Folder"));
+    }
+
+    Ok(())
+}
+
 pub async fn get_project_temp_dir(project_hash: String) -> Option<PathBuf> {
     let temp_root = get_temp_root().await;
     temp_root.as_ref()?;
