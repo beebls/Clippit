@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AspectRatioSelector from '../Export/AspectRatioSelector.svelte';
 	import BitrateSelector from '../Export/BitrateSelector.svelte';
+	import DeleteButton from '../Export/DeleteButton.svelte';
 	import ExportButton from '../Export/ExportButton.svelte';
 	export let videoRef: HTMLVideoElement;
 	import ResolutionSelector from '../Export/ResolutionSelector.svelte';
@@ -18,4 +19,5 @@
 	<BitrateSelector bind:chosenFilesize={fileSize} />
 	<AspectRatioSelector bind:aspectRatio bind:videoRef />
 	<ExportButton bind:resolution bind:fileSize bind:aspectRatio />
+	<DeleteButton />
 </div>

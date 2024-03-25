@@ -57,6 +57,18 @@ export default {
 					light: 'var(--m3-secondary-10)',
 					dark: 'var(--m3-secondary-90)'
 				},
+				errorContainer: {
+					light: 'var(--m3-error-90)',
+					dark: 'var(--m3-error-30)',
+					hover: {
+						light: 'var(--m3-error-80)',
+						dark: 'var(--m3-error-40)'
+					}
+				},
+				onErrorContainer: {
+					light: 'var(--m3-error-10)',
+					dark: 'var(--m3-error-90)'
+				},
 				containers: {
 					0: {
 						light: 'var(--m3-neutral-98)',

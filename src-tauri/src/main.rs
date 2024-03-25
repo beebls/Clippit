@@ -17,7 +17,8 @@ use ffmpeg::{
 };
 use progress_file::{write_export_progress_file, write_import_progress_file};
 use temp_dirs::{
-    create_temp_dir, delete_file, delete_temp_dir, get_output_dir, get_project_temp_dir,
+    clear_temp_dir, create_temp_dir, delete_file, delete_temp_dir, get_output_dir,
+    get_project_temp_dir,
 };
 use user_prefs::get_accent_color as get_platform_accent_color;
 
@@ -29,6 +30,14 @@ fn main() {
             get_accent_color,
             remove_project
         ])
+        .setup(|_app| {
+            // Clear the temp dir
+            // Potentially should move this to on close (window-close-requested)
+            tauri::async_runtime::spawn(async move {
+                let _ = clear_temp_dir().await;
+            });
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -84,6 +93,7 @@ async fn start_project(file_name: String) -> Result<(i32, String), String> {
 }
 
 // "new" values are set to 0 if they aren't meant to be changed;
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn export_project(
     project_hash: String,
