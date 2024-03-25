@@ -93,6 +93,7 @@ async fn start_project(file_name: String) -> Result<(i32, String), String> {
 }
 
 // "new" values are set to 0 if they aren't meant to be changed;
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn export_project(
     project_hash: String,
